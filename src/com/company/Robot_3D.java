@@ -127,6 +127,7 @@ public class Robot_3D extends JFrame implements ActionListener {
             mr.setSchedulingBounds(bounds);
             mr.setSchedulingInterval(1);
             tworzona_scena.addChild(mr);
+            //tworze komentarz
         }
 
         return tworzona_scena;
