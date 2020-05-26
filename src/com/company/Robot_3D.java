@@ -30,7 +30,8 @@ public class Robot_3D extends JFrame implements ActionListener {
 
         setVisible(true);
 
-
+        // bla bla bla bla
+        setContentPane();
 
         JPanel panelPrzyciski = stworzPanelPrzyciskow();
         add(BorderLayout.NORTH, panelPrzyciski);
