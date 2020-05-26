@@ -61,7 +61,7 @@ public class Robot_3D extends JFrame implements ActionListener {
         // the root of the subgraph.
         TransformGroup objTrans = new TransformGroup();
         Transform3D t3dTrans = new Transform3D();
-        t3dTrans.setTranslation(new Vector3d(0, 0, -1));
+        t3dTrans.setTranslation(new Vector3d(1, 0, -1));
         objTrans.setTransform(t3dTrans);
 
         TransformGroup objRot = new TransformGroup(); //transformGroup tutaj tworzone do obslugi transformacji z myszki
