@@ -8,7 +8,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.universe.SimpleUniverse;
+import com.sun.j3d.utils.universe.ViewingPlatform;
+
 import javax.media.j3d.Transform3D;
 import javax.vecmath.*;
 
@@ -21,17 +24,14 @@ public class Robot_3D extends JFrame implements ActionListener {
     JButton odtworz_nagranie = new JButton();
     Canvas3D comp = createCanvas3D(new Dimension(1000, 700));
     SimpleUniverse simpleU;
+    OrbitBehavior orbit;    //musi być widoczny dla simpleU
 
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
-
-
         setVisible(true);
 
-        // bla bla bla bla
-        //setContentPane();
 
         JPanel panelPrzyciski = stworzPanelPrzyciskow();
         add(BorderLayout.NORTH, panelPrzyciski);
@@ -42,11 +42,7 @@ public class Robot_3D extends JFrame implements ActionListener {
         BranchGroup scena = createSceneGraph(true);
 
         simpleU = new SimpleUniverse(comp);
-
-        Transform3D przesuniecie_obserwatora = new Transform3D();
-        przesuniecie_obserwatora.set(new Vector3f(0.0f,0.0f,10.0f));
-
-        simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
+        ViewingPlatform viewingPlatform = createOrbitPlatform();
 
        simpleU.addBranchGraph(scena);
 
@@ -120,19 +116,29 @@ public class Robot_3D extends JFrame implements ActionListener {
         }
 
         //opcjonalnie można dodać przycisk w menu czy ma być interaktywne i na podstawie tego wywoływać tę funkcję
-        if (isInteractive) {
-            MouseWheelZoom m_zoom = new MouseWheelZoom(comp, objRot);
-            m_zoom.setSchedulingBounds(bounds);
-            tworzona_scena.addChild(m_zoom);
-            MouseRotate mr = new MouseRotate(comp, objRot);
-            mr.setSchedulingBounds(bounds);
-            mr.setSchedulingInterval(1);
-            tworzona_scena.addChild(mr);
-            //tworze komentarz1231231244`1
-        }
+        /*if (isInteractive) {
+        }*/
 
         return tworzona_scena;
     }
+    /**Creates Vieving platform with orbit behaviour**/
+    public  ViewingPlatform createOrbitPlatform() {
+
+        ViewingPlatform viewingPlatform = simpleU.getViewingPlatform();
+        viewingPlatform.setNominalViewingTransform();
+        orbit = new OrbitBehavior(simpleU.getCanvas());
+        BoundingSphere bounds =
+                new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
+        orbit.setSchedulingBounds(bounds);
+        orbit.setTranslateEnable(false);
+
+        orbit.setRotFactors(0.5, 0.5);
+        orbit.setReverseRotate(true);
+
+        viewingPlatform.setViewPlatformBehavior(orbit);
+        return  viewingPlatform;
+    }
+
     /**Creates Canvas3D object with given dimensions **/
     public static Canvas3D createCanvas3D(Dimension dim) {
         GraphicsConfiguration config =
@@ -188,7 +194,7 @@ public class Robot_3D extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e){
             if(e.getSource() == reset_kamery) {
                 Transform3D przesuniecie_obserwatora = new Transform3D();
-                przesuniecie_obserwatora.set(new Vector3f(0.0f,0.0f,10.0f));
+                przesuniecie_obserwatora.set(new Vector3f(0.0f,1.5f,15.0f));
                 simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
             }
     }
