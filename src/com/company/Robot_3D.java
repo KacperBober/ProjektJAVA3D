@@ -2,14 +2,17 @@ package com.company;
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
 import com.sun.j3d.utils.behaviors.mouse.MouseWheelZoom;
 
+import javax.imageio.ImageIO;
 import javax.media.j3d.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.universe.SimpleUniverse;
@@ -95,9 +98,11 @@ public class Robot_3D extends JFrame implements ActionListener {
         }
         BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0),
                 100.0);
-        Image tlo = new ImageIcon("resources\\tło_szare_trojkaty.jpg").getImage();
 
-        BufferedImage tlo_buff = toBufferedImage(tlo);
+        BufferedImage tlo_buff = null;
+        try {
+            tlo_buff = ImageIO.read(new File("resources\\tło_szare_trojkaty.jpg"));
+        } catch (IOException e) {};
 
         Background bgNode = new Background(new ImageComponent2D(FORMAT_RGB,tlo_buff));
         bgNode.setImageScaleMode(SCALE_FIT_ALL);
@@ -215,6 +220,7 @@ public class Robot_3D extends JFrame implements ActionListener {
     /**Funkcja do tworzenia BufferedImage z Image**/
     public static BufferedImage toBufferedImage(Image img)
     {
+
         if (img instanceof BufferedImage)
         {
             return (BufferedImage) img;
