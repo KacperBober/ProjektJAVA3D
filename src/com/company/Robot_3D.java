@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.universe.SimpleUniverse;
@@ -14,6 +17,8 @@ import com.sun.j3d.utils.universe.ViewingPlatform;
 
 import javax.media.j3d.Transform3D;
 import javax.vecmath.*;
+
+import static javax.media.j3d.ImageComponent.FORMAT_RGB;
 
 public class Robot_3D extends JFrame implements ActionListener {
     JButton start = new JButton();
@@ -87,8 +92,17 @@ public class Robot_3D extends JFrame implements ActionListener {
 
             objRot.addChild(sh);
         }
+
+        //sekcja tworzenia tła
         BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0),
                 100.0);
+        Image tlo = new ImageIcon("resources\\tło_szare_belki.jpg").getImage();
+
+        BufferedImage tlo_buff = toBufferedImage(tlo);
+
+        Background bgNode = new Background(new ImageComponent2D(FORMAT_RGB,tlo_buff));
+        bgNode.setApplicationBounds(bounds);
+        tworzona_scena.addChild(bgNode);
 
         //sekcja oświetlenia
         {
@@ -121,6 +135,7 @@ public class Robot_3D extends JFrame implements ActionListener {
 
         return tworzona_scena;
     }
+
     /**Creates Vieving platform with orbit behaviour**/
     public  ViewingPlatform createOrbitPlatform() {
 
@@ -197,6 +212,25 @@ public class Robot_3D extends JFrame implements ActionListener {
                 przesuniecie_obserwatora.set(new Vector3f(0.0f,1.5f,15.0f));
                 simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
             }
+    }
+    /**Funkcja do tworzenia BufferedImage z Image**/
+    public static BufferedImage toBufferedImage(Image img)
+    {
+        if (img instanceof BufferedImage)
+        {
+            return (BufferedImage) img;
+        }
+
+        // Create a buffered image with transparency
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+        // Draw the image on to the buffered image
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.drawImage(img, 0, 0, null);
+        bGr.dispose();
+
+        // Return the buffered image
+        return bimage;
     }
 
     public static void main(String[] args) {
