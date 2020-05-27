@@ -18,6 +18,7 @@ import com.sun.j3d.utils.universe.ViewingPlatform;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.*;
 
+import static javax.media.j3d.Background.SCALE_FIT_ALL;
 import static javax.media.j3d.ImageComponent.FORMAT_RGB;
 
 public class Robot_3D extends JFrame implements ActionListener {
@@ -92,18 +93,16 @@ public class Robot_3D extends JFrame implements ActionListener {
 
             objRot.addChild(sh);
         }
-
-        //sekcja tworzenia tła
         BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0),
                 100.0);
-        Image tlo = new ImageIcon("resources\\tło_szare_belki.jpg").getImage();
+        Image tlo = new ImageIcon("resources\\tło_szare_trojkaty.jpg").getImage();
 
         BufferedImage tlo_buff = toBufferedImage(tlo);
 
         Background bgNode = new Background(new ImageComponent2D(FORMAT_RGB,tlo_buff));
+        bgNode.setImageScaleMode(SCALE_FIT_ALL);
         bgNode.setApplicationBounds(bounds);
         tworzona_scena.addChild(bgNode);
-
         //sekcja oświetlenia
         {
             // Set up the ambient ligh
