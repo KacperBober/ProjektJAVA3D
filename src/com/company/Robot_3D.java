@@ -46,6 +46,11 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     JButton zakoncz_nagrywanie = new JButton();
     JButton odtworz_nagranie = new JButton();
 
+    TransformGroup t_podloga;
+    Transform3D t3d_podloga;
+
+    TransformGroup t_podstawka;
+
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -98,15 +103,15 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     }
 
     public void dodanieSwiatla(BranchGroup tworzona_scena){
-        Color3f ambientColor = new Color3f(0.3f, 0.3f, 0.3f);
+        Color3f ambientColor = new Color3f(0.0f, 0.0f, 0.0f);
         AmbientLight ambientLightNode = new AmbientLight(ambientColor);
         ambientLightNode.setInfluencingBounds(bounds);
         tworzona_scena.addChild(ambientLightNode);
 
         // Set up the directional lights
-        Color3f light1Color = new Color3f(1.0f, 1.0f, 0.9f);
+        Color3f light1Color = new Color3f(1.0f, 1.0f, 1.0f);
         Vector3f light1Direction = new Vector3f(1.0f, 1.0f, 1.0f);
-        Color3f light2Color = new Color3f(1.0f, 1.0f, 0.9f);
+        Color3f light2Color = new Color3f(1.0f, 1.0f, 1.0f);
         Vector3f light2Direction = new Vector3f(-1.0f, -1.0f, -1.0f);
 
         DirectionalLight light1 = new DirectionalLight(light1Color, light1Direction);
@@ -119,8 +124,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     }
 
     public void dodanieZiemi(BranchGroup tworzona_scena){
-        TransformGroup t_podloga = new TransformGroup();
-        Transform3D t3d_podloga = new Transform3D();
+        t_podloga = new TransformGroup();
+        t3d_podloga = new Transform3D();
 
         ObjectFile loader = new ObjectFile();
         Scene podloga_wczytanie = null;
@@ -136,7 +141,10 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         t_podloga.addChild(podloga_wczytanie.getSceneGroup());
         tworzona_scena.addChild(t_podloga);
 
-        TransformGroup t_podstawka = new TransformGroup();
+        /////////////////////////////////////////////////////////////////
+
+        t_podstawka = new TransformGroup();
+        t_podstawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 
         Scene podstawka = null;
 
@@ -152,6 +160,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         t_podstawka.addChild(podstawka.getSceneGroup());
         tworzona_scena.addChild(t_podstawka);
 
+        ///////////////////////////////////////////////////////////////////
+
         TransformGroup t_pierwszy_obraczacz = new TransformGroup();
 
         Scene pierwszy_obrot = null;
@@ -166,7 +176,9 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         t_pierwszy_obraczacz.setTransform(t3d_podloga);
         t_pierwszy_obraczacz.addChild(pierwszy_obrot.getSceneGroup());
-        tworzona_scena.addChild(t_pierwszy_obraczacz);
+        t_podstawka.addChild(t_pierwszy_obraczacz);
+
+        //////////////////////////////////////////////////////////////////////
 
         TransformGroup t_pierwsze_ramie = new TransformGroup();
 
@@ -183,6 +195,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         t_pierwsze_ramie.setTransform(t3d_podloga);
         t_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
         tworzona_scena.addChild(t_pierwsze_ramie);
+
+        ////////////////////////////////////////////////////////////////////////
 
         TransformGroup t_drugie_ramie = new TransformGroup();
 
@@ -277,16 +291,19 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     }
 
     public void keyPressed(KeyEvent e){
+        Transform3D akcja = new Transform3D();
         switch (e.getKeyCode()){
-            case KeyEvent.VK_UP: 
-                System.out.println("tak");
+            case KeyEvent.VK_A:
+                akcja.rotY(Math.PI/100);
+                t3d_podloga.mul(akcja);
+                t_podstawka.setTransform(t3d_podloga);
                 break;
             case KeyEvent.VK_RIGHT:
                 System.out.println("w prawo");
                 break;
-            case 'a': 
-            System.out.println("a");
-            break;
+            case 'a':
+                System.out.println("a");
+                break;
         }
     }
 
