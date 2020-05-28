@@ -1,5 +1,7 @@
 package com.company;
 
+import com.sun.j3d.loaders.Scene;
+import com.sun.j3d.loaders.objectfile.ObjectFile;
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
 import com.sun.j3d.utils.behaviors.mouse.MouseWheelZoom;
 
@@ -52,32 +54,28 @@ public class Robot_3D extends JFrame implements ActionListener {
 
         pack();
         // tworzenie sceny
+        bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
         BranchGroup scena = createSceneGraph(true);
 
+
         simpleU = new SimpleUniverse(comp);
-        // tworzenie poruszania sceny  
+        // tworzenie poruszania sceny
         createOrbitPlatform();
         simpleU.addBranchGraph(scena);
 
     }
 
     public BranchGroup createSceneGraph(boolean isInteractive) {
-        
+
         BranchGroup tworzona_scena = new BranchGroup();
-        
-        // poczatkowe polozenie kamery
-        // TransformGroup objTrans = new TransformGroup(); 
-        // objTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        // Transform3D t3dTrans = new Transform3D();
-        // t3dTrans.setTranslation(new Vector3d(2, -0.5, -2));
-        // objTrans.setTransform(t3dTrans);
-        // tworzona_scena.addChild(objTrans);
+
 
         dodanieZiemi(tworzona_scena);
         dodanieSwiatla(tworzona_scena);
 
         Appearance wyglad_mury = new Appearance();
         wyglad_mury.setColoringAttributes(new ColoringAttributes(139f, 0f, 139f, ColoringAttributes.NICEST));
+
 
         TransformGroup wieza_p = new TransformGroup();
         Transform3D przesuniecie_wiezy = new Transform3D();
@@ -120,60 +118,24 @@ public class Robot_3D extends JFrame implements ActionListener {
     }
 
     public void dodanieZiemi(BranchGroup tworzona_scena){
-        Appearance wyglad_ziemia = new Appearance();
-        TextureLoader loader = new TextureLoader("resources\\trawka.jpg", null);
-        ImageComponent2D image = loader.getImage();
-        Texture2D trawka = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA, image.getWidth(), image.getHeight());
-        trawka.setImage(0, image);
-        trawka.setBoundaryModeS(Texture.WRAP);
-        trawka.setBoundaryModeT(Texture.WRAP);
-        wyglad_ziemia.setTexture(trawka);
-        Point3f[] coords = new Point3f[4];
-        for (int i = 0; i < 4; i++)
-            coords[i] = new Point3f();
+        TransformGroup t_podloga = new TransformGroup();
+        Transform3D t3d_podloga = new Transform3D();
+        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
+        t3d_podloga.rotY(Math.PI);
+        t3d_podloga.setScale(1.5);
+        ObjectFile loader = new ObjectFile();
+        Scene podloga_wczytanie = null;
+        File file = new java.io.File("resources/podloga.obj");
+        try {
+            podloga_wczytanie = loader.load(file.toURI().toURL());
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+        }
 
-        Point2f[] tex_coords = new Point2f[4];
-        for (int i = 0; i < 4; i++)
-            tex_coords[i] = new Point2f();
-
-        coords[0].y = 0.0f;
-        coords[1].y = 0.0f;
-        coords[2].y = 0.0f;
-        coords[3].y = 0.0f;
-
-        coords[0].x = 3.5f;
-        coords[1].x = 3.5f;
-        coords[2].x = -3.5f;
-        coords[3].x = -3.5f;
-
-        coords[0].z = 3.5f;
-        coords[1].z = -3.5f;
-        coords[2].z = -3.5f;
-        coords[3].z = 3.5f;
-
-        tex_coords[0].x = 0.0f;
-        tex_coords[0].y = 0.0f;
-
-        tex_coords[1].x = 10.0f;
-        tex_coords[1].y = 0.0f;
-
-        tex_coords[2].x = 0.0f;
-        tex_coords[2].y = 10.0f;
-
-        tex_coords[3].x = 10.0f;
-        tex_coords[3].y = 10.0f;
-
-        // ziemia
-
-        QuadArray qa_ziemia = new QuadArray(4, GeometryArray.COORDINATES | GeometryArray.TEXTURE_COORDINATE_2);
-        qa_ziemia.setCoordinates(0, coords);
-
-        qa_ziemia.setTextureCoordinates(0, tex_coords);
-
-        Shape3D ziemia = new Shape3D(qa_ziemia);
-        ziemia.setAppearance(wyglad_ziemia);
-
-        tworzona_scena.addChild(ziemia);
+        t_podloga.setTransform(t3d_podloga);
+        t_podloga.addChild(podloga_wczytanie.getSceneGroup());
+        tworzona_scena.addChild(t_podloga);
     }
 
     /** Creates Vieving platform with orbit behaviour **/
@@ -182,7 +144,6 @@ public class Robot_3D extends JFrame implements ActionListener {
         ViewingPlatform viewingPlatform = simpleU.getViewingPlatform();
         viewingPlatform.setNominalViewingTransform();
         orbit = new OrbitBehavior(simpleU.getCanvas());
-        bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
         orbit.setSchedulingBounds(bounds);
         orbit.setTranslateEnable(false);
 
