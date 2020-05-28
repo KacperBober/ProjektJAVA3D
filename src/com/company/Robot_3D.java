@@ -87,10 +87,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         przesuniecie_wiezy.set(new Vector3f(0.0f, 0.0f, 0.0f));
         wieza_p.setTransform(przesuniecie_wiezy);
 
-        Cylinder walec = new Cylinder(0.2f, 0.6f, Cylinder.GENERATE_NORMALS | Cylinder.GENERATE_TEXTURE_COORDS,
-                wyglad_mury);
-
-        wieza_p.addChild(walec);
         tworzona_scena.addChild(wieza_p);
         // opcjonalnie można dodać przycisk w menu czy ma być interaktywne i na
         // podstawie tego wywoływać tę funkcję
@@ -128,6 +124,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
         t3d_podloga.rotY(Math.PI);
         t3d_podloga.setScale(1.5);
+
         ObjectFile loader = new ObjectFile();
         Scene podloga_wczytanie = null;
         File file = new java.io.File("resources/podloga.obj");
@@ -141,6 +138,82 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         t_podloga.setTransform(t3d_podloga);
         t_podloga.addChild(podloga_wczytanie.getSceneGroup());
         tworzona_scena.addChild(t_podloga);
+
+        TransformGroup t_podstawka = new TransformGroup();
+        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
+        t3d_podloga.rotY(Math.PI);
+        t3d_podloga.setScale(1.5);
+
+        Scene podstawka = null;
+
+        File file_1 = new java.io.File("resources/podstawka.obj");
+        try {
+            podstawka = loader.load(file_1.toURI().toURL());
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        t_podstawka.setTransform(t3d_podloga);
+        t_podstawka.addChild(podstawka.getSceneGroup());
+        tworzona_scena.addChild(t_podstawka);
+
+        TransformGroup t_pierwszy_obraczacz = new TransformGroup();
+        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
+        t3d_podloga.rotY(Math.PI);
+        t3d_podloga.setScale(1.5);
+
+        Scene pierwszy_obrot = null;
+
+        File file_2 = new java.io.File("resources/pierwszy_obraczacz.obj");
+        try {
+            pierwszy_obrot = loader.load(file_2.toURI().toURL());
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        t_pierwszy_obraczacz.setTransform(t3d_podloga);
+        t_pierwszy_obraczacz.addChild(pierwszy_obrot.getSceneGroup());
+        tworzona_scena.addChild(t_pierwszy_obraczacz);
+
+        TransformGroup t_pierwsze_ramie = new TransformGroup();
+        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
+        t3d_podloga.rotY(Math.PI);
+        t3d_podloga.setScale(1.5);
+
+        Scene s_pierwsze_ramie = null;
+
+        File file_3 = new java.io.File("resources/pierwsze_ramie.obj");
+        try {
+            s_pierwsze_ramie = loader.load(file_3.toURI().toURL());
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        t_pierwsze_ramie.setTransform(t3d_podloga);
+        t_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
+        tworzona_scena.addChild(t_pierwsze_ramie);
+
+        TransformGroup t_drugie_ramie = new TransformGroup();
+        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
+        t3d_podloga.rotY(Math.PI);
+        t3d_podloga.setScale(1.5);
+
+        Scene s_drugie_ramie = null;
+
+        File file_4 = new java.io.File("resources/drugie_ramie.obj");
+        try {
+            s_drugie_ramie = loader.load(file_4.toURI().toURL());
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        t_drugie_ramie.setTransform(t3d_podloga);
+        t_drugie_ramie.addChild(s_drugie_ramie.getSceneGroup());
+        tworzona_scena.addChild(t_drugie_ramie);
     }
 
     /** Creates Vieving platform with orbit behaviour **/
