@@ -121,9 +121,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     public void dodanieZiemi(BranchGroup tworzona_scena){
         TransformGroup t_podloga = new TransformGroup();
         Transform3D t3d_podloga = new Transform3D();
-        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
-        t3d_podloga.rotY(Math.PI);
-        t3d_podloga.setScale(1.5);
 
         ObjectFile loader = new ObjectFile();
         Scene podloga_wczytanie = null;
@@ -140,9 +137,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tworzona_scena.addChild(t_podloga);
 
         TransformGroup t_podstawka = new TransformGroup();
-        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
-        t3d_podloga.rotY(Math.PI);
-        t3d_podloga.setScale(1.5);
 
         Scene podstawka = null;
 
@@ -159,9 +153,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tworzona_scena.addChild(t_podstawka);
 
         TransformGroup t_pierwszy_obraczacz = new TransformGroup();
-        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
-        t3d_podloga.rotY(Math.PI);
-        t3d_podloga.setScale(1.5);
 
         Scene pierwszy_obrot = null;
 
@@ -178,9 +169,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tworzona_scena.addChild(t_pierwszy_obraczacz);
 
         TransformGroup t_pierwsze_ramie = new TransformGroup();
-        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
-        t3d_podloga.rotY(Math.PI);
-        t3d_podloga.setScale(1.5);
 
         Scene s_pierwsze_ramie = null;
 
@@ -197,9 +185,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tworzona_scena.addChild(t_pierwsze_ramie);
 
         TransformGroup t_drugie_ramie = new TransformGroup();
-        t3d_podloga.setTranslation(new Vector3f(0.0f, -0.0f, 1.0f));
-        t3d_podloga.rotY(Math.PI);
-        t3d_podloga.setScale(1.5);
+
 
         Scene s_drugie_ramie = null;
 
