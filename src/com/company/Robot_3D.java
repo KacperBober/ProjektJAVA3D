@@ -64,7 +64,7 @@ public class Robot_3D extends JFrame implements ActionListener {
     public BranchGroup createSceneGraph(boolean isInteractive) {
         
         BranchGroup tworzona_scena = new BranchGroup();
-
+        
         // poczatkowe polozenie kamery
         // TransformGroup objTrans = new TransformGroup(); 
         // objTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -76,6 +76,19 @@ public class Robot_3D extends JFrame implements ActionListener {
         dodanieZiemi(tworzona_scena);
         dodanieSwiatla(tworzona_scena);
 
+        Appearance wyglad_mury = new Appearance();
+        wyglad_mury.setColoringAttributes(new ColoringAttributes(139f, 0f, 139f, ColoringAttributes.NICEST));
+
+        TransformGroup wieza_p = new TransformGroup();
+        Transform3D przesuniecie_wiezy = new Transform3D();
+        przesuniecie_wiezy.set(new Vector3f(0.0f, 0.0f, 0.0f));
+        wieza_p.setTransform(przesuniecie_wiezy);
+
+        Cylinder walec = new Cylinder(0.2f, 0.6f, Cylinder.GENERATE_NORMALS | Cylinder.GENERATE_TEXTURE_COORDS,
+                wyglad_mury);
+
+        wieza_p.addChild(walec);
+        tworzona_scena.addChild(wieza_p);
         // opcjonalnie można dodać przycisk w menu czy ma być interaktywne i na
         // podstawie tego wywoływać tę funkcję
         /*
@@ -232,7 +245,8 @@ public class Robot_3D extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == reset_kamery) {
             Transform3D przesuniecie_obserwatora = new Transform3D();
-            przesuniecie_obserwatora.set(new Vector3f(0.0f, 1.5f, 15.0f));
+            przesuniecie_obserwatora.set(new Vector3f(0.0f, 0.1f, 12.0f));
+
             simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
         }
     }
