@@ -11,6 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,18 +32,19 @@ import javax.vecmath.*;
 import static javax.media.j3d.Background.SCALE_FIT_ALL;
 import static javax.media.j3d.ImageComponent.FORMAT_RGB;
 
-public class Robot_3D extends JFrame implements ActionListener {
+public class Robot_3D extends JFrame implements ActionListener, KeyListener {
+
+    Canvas3D comp = createCanvas3D(new Dimension(1000, 700));
+    BoundingSphere bounds;
+    SimpleUniverse simpleU;
+    OrbitBehavior orbit; // musi być widoczny dla simpleU
+
     JButton start = new JButton();
     JButton dzwiek = new JButton();
     JButton reset_kamery = new JButton();
     JButton zacznij_nagrywanie = new JButton();
     JButton zakoncz_nagrywanie = new JButton();
     JButton odtworz_nagranie = new JButton();
-
-    Canvas3D comp = createCanvas3D(new Dimension(1000, 700));
-    BoundingSphere bounds;
-    SimpleUniverse simpleU;
-    OrbitBehavior orbit; // musi być widoczny dla simpleU
 
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
@@ -51,6 +55,8 @@ public class Robot_3D extends JFrame implements ActionListener {
         add(BorderLayout.NORTH, stworzPanelPrzyciskow());
         add(BorderLayout.WEST, dodanieInstrukcji());
         add(BorderLayout.CENTER, comp);
+
+        comp.addKeyListener(this);
 
         pack();
         // tworzenie sceny
@@ -68,7 +74,6 @@ public class Robot_3D extends JFrame implements ActionListener {
     public BranchGroup createSceneGraph(boolean isInteractive) {
 
         BranchGroup tworzona_scena = new BranchGroup();
-
 
         dodanieZiemi(tworzona_scena);
         dodanieSwiatla(tworzona_scena);
@@ -210,6 +215,26 @@ public class Robot_3D extends JFrame implements ActionListener {
 
             simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
         }
+    }
+
+    public void keyPressed(KeyEvent e){
+        switch (e.getKeyCode()){
+            case KeyEvent.VK_UP: 
+                System.out.println("tak");
+                break;
+            case KeyEvent.VK_RIGHT:
+                System.out.println("w prawo");
+                break;
+            case 'a': 
+            System.out.println("a");
+            break;
+        }
+    }
+
+    public void keyReleased(KeyEvent e) {
+    }
+
+    public void keyTyped(KeyEvent e) {
     }
 
     public static void main(String[] args) {
