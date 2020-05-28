@@ -34,7 +34,9 @@ public class Robot_3D extends JFrame implements ActionListener {
     JButton zacznij_nagrywanie = new JButton();
     JButton zakoncz_nagrywanie = new JButton();
     JButton odtworz_nagranie = new JButton();
+
     Canvas3D comp = createCanvas3D(new Dimension(1000, 700));
+    BoundingSphere bounds;
     SimpleUniverse simpleU;
     OrbitBehavior orbit; // musi być widoczny dla simpleU
 
@@ -44,59 +46,69 @@ public class Robot_3D extends JFrame implements ActionListener {
         setResizable(true);
         setVisible(true);
 
-        JPanel panelPrzyciski = stworzPanelPrzyciskow();
-        add(BorderLayout.NORTH, panelPrzyciski);
-        add(BorderLayout.WEST, addInstruction());
-
+        add(BorderLayout.NORTH, stworzPanelPrzyciskow());
+        add(BorderLayout.WEST, dodanieInstrukcji());
         add(BorderLayout.CENTER, comp);
 
-        pack(); // dopasowuje ramke do elementow musi byc po dodaniu elementow
-
+        pack();
+        // tworzenie sceny
         BranchGroup scena = createSceneGraph(true);
 
         simpleU = new SimpleUniverse(comp);
-        ViewingPlatform viewingPlatform = createOrbitPlatform();
-
+        // tworzenie poruszania sceny  
+        createOrbitPlatform();
         simpleU.addBranchGraph(scena);
 
     }
 
     public BranchGroup createSceneGraph(boolean isInteractive) {
-        // Create the root of the branch graph
+        
         BranchGroup tworzona_scena = new BranchGroup();
 
-        // Create the TransformGroup node and initialize it to the
-        // identity. Enable the TRANSFORM_WRITE capability so that
-        // our behavior code can modify it at run time. Add it to
-        // the root of the subgraph.
-        TransformGroup objTrans = new TransformGroup();
-        Transform3D t3dTrans = new Transform3D();
-        t3dTrans.setTranslation(new Vector3d(1, 0, -1));
-        objTrans.setTransform(t3dTrans);
+        // poczatkowe polozenie kamery
+        // TransformGroup objTrans = new TransformGroup(); 
+        // objTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        // Transform3D t3dTrans = new Transform3D();
+        // t3dTrans.setTranslation(new Vector3d(2, -0.5, -2));
+        // objTrans.setTransform(t3dTrans);
+        // tworzona_scena.addChild(objTrans);
 
-        TransformGroup objRot = new TransformGroup(); // transformGroup tutaj tworzone do obslugi transformacji z myszki
-        objRot.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        tworzona_scena.addChild(objTrans);
-        objTrans.addChild(objRot);
+        dodanieZiemi(tworzona_scena);
+        dodanieSwiatla(tworzona_scena);
 
-        // Create a simple Shape3D node; add it to the scene graph.
-        // issue 383: changed the cube to a text, so that any graphical problem related
-        // to Yup can be seen.
+        // opcjonalnie można dodać przycisk w menu czy ma być interaktywne i na
+        // podstawie tego wywoływać tę funkcję
+        /*
+         * if (isInteractive) { }
+         */
 
-        // sekcja tworzenia napisu, tworzenie obiektów dobrze byłoby robić w oddzielnych
-        // funkcjach
+        return tworzona_scena;
+    }
 
-        BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
+    public void dodanieSwiatla(BranchGroup tworzona_scena){
+        Color3f ambientColor = new Color3f(0.3f, 0.3f, 0.3f);
+        AmbientLight ambientLightNode = new AmbientLight(ambientColor);
+        ambientLightNode.setInfluencingBounds(bounds);
+        tworzona_scena.addChild(ambientLightNode);
 
-        BufferedImage tlo_buff = null;
-        try {
-            tlo_buff = ImageIO.read(new File("resources\\tło_szare_trojkaty.jpg"));
-        } catch (IOException e) {
-        }
+        // Set up the directional lights
+        Color3f light1Color = new Color3f(1.0f, 1.0f, 0.9f);
+        Vector3f light1Direction = new Vector3f(1.0f, 1.0f, 1.0f);
+        Color3f light2Color = new Color3f(1.0f, 1.0f, 0.9f);
+        Vector3f light2Direction = new Vector3f(-1.0f, -1.0f, -1.0f);
 
+        DirectionalLight light1 = new DirectionalLight(light1Color, light1Direction);
+        light1.setInfluencingBounds(bounds);
+        tworzona_scena.addChild(light1);
 
+        DirectionalLight light2 = new DirectionalLight(light2Color, light2Direction);
+        light2.setInfluencingBounds(bounds);
+        tworzona_scena.addChild(light2);
+    }
+
+    public void dodanieZiemi(BranchGroup tworzona_scena){
         Appearance wyglad_ziemia = new Appearance();
-        TextureLoader loader = new TextureLoader("resources\\trawka.gif", null);
+        TextureLoader loader = new TextureLoader("resources\\trawka.jpg", null);
         ImageComponent2D image = loader.getImage();
         Texture2D trawka = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA, image.getWidth(), image.getHeight());
         trawka.setImage(0, image);
@@ -116,27 +128,27 @@ public class Robot_3D extends JFrame implements ActionListener {
         coords[2].y = 0.0f;
         coords[3].y = 0.0f;
 
-        coords[0].x = 2.5f;
-        coords[1].x = 2.5f;
-        coords[2].x = -2.5f;
-        coords[3].x = -2.5f;
+        coords[0].x = 3.5f;
+        coords[1].x = 3.5f;
+        coords[2].x = -3.5f;
+        coords[3].x = -3.5f;
 
-        coords[0].z = 2.5f;
-        coords[1].z = -2.5f;
-        coords[2].z = -2.5f;
-        coords[3].z = 2.5f;
+        coords[0].z = 3.5f;
+        coords[1].z = -3.5f;
+        coords[2].z = -3.5f;
+        coords[3].z = 3.5f;
 
         tex_coords[0].x = 0.0f;
         tex_coords[0].y = 0.0f;
 
-        tex_coords[1].x = 100.0f;
+        tex_coords[1].x = 10.0f;
         tex_coords[1].y = 0.0f;
 
         tex_coords[2].x = 0.0f;
         tex_coords[2].y = 10.0f;
 
-        tex_coords[3].x = 100.0f;
-        tex_coords[3].y = 100.0f;
+        tex_coords[3].x = 10.0f;
+        tex_coords[3].y = 10.0f;
 
         // ziemia
 
@@ -148,41 +160,7 @@ public class Robot_3D extends JFrame implements ActionListener {
         Shape3D ziemia = new Shape3D(qa_ziemia);
         ziemia.setAppearance(wyglad_ziemia);
 
-        objRot.addChild(ziemia);
-
-        Background bgNode = new Background(new ImageComponent2D(FORMAT_RGB, tlo_buff));
-        bgNode.setImageScaleMode(SCALE_FIT_ALL);
-        bgNode.setApplicationBounds(bounds);
-        tworzona_scena.addChild(bgNode);
-        // sekcja oświetlenia
-
-        // Set up the ambient ligh
-        Color3f ambientColor = new Color3f(0.3f, 0.3f, 0.3f);
-        AmbientLight ambientLightNode = new AmbientLight(ambientColor);
-        ambientLightNode.setInfluencingBounds(bounds);
-        tworzona_scena.addChild(ambientLightNode);
-
-        // Set up the directional lights
-        Color3f light1Color = new Color3f(1.0f, 1.0f, 0.9f);
-        Vector3f light1Direction = new Vector3f(1.0f, 1.0f, 1.0f);
-        Color3f light2Color = new Color3f(1.0f, 1.0f, 0.9f);
-        Vector3f light2Direction = new Vector3f(-1.0f, -1.0f, -1.0f);
-
-        DirectionalLight light1 = new DirectionalLight(light1Color, light1Direction);
-        light1.setInfluencingBounds(bounds);
-        tworzona_scena.addChild(light1);
-
-        DirectionalLight light2 = new DirectionalLight(light2Color, light2Direction);
-        light2.setInfluencingBounds(bounds);
-        tworzona_scena.addChild(light2);
-
-        // opcjonalnie można dodać przycisk w menu czy ma być interaktywne i na
-        // podstawie tego wywoływać tę funkcję
-        /*
-         * if (isInteractive) { }
-         */
-
-        return tworzona_scena;
+        tworzona_scena.addChild(ziemia);
     }
 
     /** Creates Vieving platform with orbit behaviour **/
@@ -191,7 +169,7 @@ public class Robot_3D extends JFrame implements ActionListener {
         ViewingPlatform viewingPlatform = simpleU.getViewingPlatform();
         viewingPlatform.setNominalViewingTransform();
         orbit = new OrbitBehavior(simpleU.getCanvas());
-        BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
+        bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
         orbit.setSchedulingBounds(bounds);
         orbit.setTranslateEnable(false);
 
@@ -209,7 +187,6 @@ public class Robot_3D extends JFrame implements ActionListener {
         Canvas3D canvas3D = new Canvas3D(config);
         canvas3D.setPreferredSize(dim);
         return canvas3D;
-
     }
 
     /** Creates JPanel and initializes buttons **/
@@ -243,10 +220,9 @@ public class Robot_3D extends JFrame implements ActionListener {
     }
 
     /** Creates JPanel with robot instructions **/
-    public static JPanel addInstruction() {
+    public static JPanel dodanieInstrukcji() {
         JLabel label = new JLabel();
         label.setIcon(new ImageIcon("resources\\istrukcja_robota.jpg"));
-
         JPanel panel_instrukcji = new JPanel(new FlowLayout());
         panel_instrukcji.add(label);
         return panel_instrukcji;
@@ -259,25 +235,6 @@ public class Robot_3D extends JFrame implements ActionListener {
             przesuniecie_obserwatora.set(new Vector3f(0.0f, 1.5f, 15.0f));
             simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
         }
-    }
-
-    /** Funkcja do tworzenia BufferedImage z Image **/
-    public static BufferedImage toBufferedImage(Image img) {
-
-        if (img instanceof BufferedImage) {
-            return (BufferedImage) img;
-        }
-
-        // Create a buffered image with transparency
-        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-
-        // Draw the image on to the buffered image
-        Graphics2D bGr = bimage.createGraphics();
-        bGr.drawImage(img, 0, 0, null);
-        bGr.dispose();
-
-        // Return the buffered image
-        return bimage;
     }
 
     public static void main(String[] args) {
