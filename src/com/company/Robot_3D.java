@@ -2,35 +2,21 @@ package com.company;
 
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.objectfile.ObjectFile;
-import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
-import com.sun.j3d.utils.behaviors.mouse.MouseWheelZoom;
-
-import javax.imageio.ImageIO;
 import javax.media.j3d.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import com.sun.j3d.utils.geometry.*;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
-import com.sun.j3d.utils.image.TextureLoader;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import com.sun.j3d.utils.universe.ViewingPlatform;
 
 import javax.media.j3d.Transform3D;
 import javax.vecmath.*;
-
-import static javax.media.j3d.Background.SCALE_FIT_ALL;
-import static javax.media.j3d.ImageComponent.FORMAT_RGB;
 
 public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
@@ -46,10 +32,17 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     JButton zakoncz_nagrywanie = new JButton();
     JButton odtworz_nagranie = new JButton();
 
-    TransformGroup t_podloga;
-    Transform3D t3d_podloga;
+    TransformGroup tg_podloga = new TransformGroup();
+    TransformGroup tg_podstawka = new TransformGroup();
+    TransformGroup tg_pierwszy_obraczacz = new TransformGroup();
+    TransformGroup tg_pierwsze_ramie = new TransformGroup();
+    TransformGroup tg_drugie_ramie = new TransformGroup();
 
-    TransformGroup t_podstawka;
+    Transform3D t3d_podloga = new Transform3D();
+    Transform3D t3d_podstawka = new Transform3D();
+    Transform3D t3d_pierwszy_obraczacz = new Transform3D();
+    Transform3D t3d_pierwsze_ramie = new Transform3D();
+    Transform3D t3d_drugie_ramie = new Transform3D();
 
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
@@ -64,12 +57,13 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         comp.addKeyListener(this);
 
         pack();
+
         // tworzenie sceny
         bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
         BranchGroup scena = createSceneGraph(true);
 
-
         simpleU = new SimpleUniverse(comp);
+
         // tworzenie poruszania sceny
         createOrbitPlatform();
         simpleU.addBranchGraph(scena);
@@ -78,142 +72,57 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
     public BranchGroup createSceneGraph(boolean isInteractive) {
 
-        BranchGroup tworzona_scena = new BranchGroup();
+        BranchGroup glowna_scena = new BranchGroup();
 
-        dodanieZiemi(tworzona_scena);
-        dodanieSwiatla(tworzona_scena);
+        dodanieZiemi(glowna_scena);
+        dodanieSwiatla(glowna_scena);
 
-        Appearance wyglad_mury = new Appearance();
-        wyglad_mury.setColoringAttributes(new ColoringAttributes(139f, 0f, 139f, ColoringAttributes.NICEST));
-
-
-        TransformGroup wieza_p = new TransformGroup();
-        Transform3D przesuniecie_wiezy = new Transform3D();
-        przesuniecie_wiezy.set(new Vector3f(0.0f, 0.0f, 0.0f));
-        wieza_p.setTransform(przesuniecie_wiezy);
-
-        tworzona_scena.addChild(wieza_p);
-        // opcjonalnie można dodać przycisk w menu czy ma być interaktywne i na
-        // podstawie tego wywoływać tę funkcję
-        /*
-         * if (isInteractive) { }
-         */
-
-        return tworzona_scena;
+        return glowna_scena;
     }
 
-    public void dodanieSwiatla(BranchGroup tworzona_scena){
-        Color3f ambientColor = new Color3f(0.0f, 0.0f, 0.0f);
-        AmbientLight ambientLightNode = new AmbientLight(ambientColor);
-        ambientLightNode.setInfluencingBounds(bounds);
-        tworzona_scena.addChild(ambientLightNode);
+    public void dodanieZiemi(BranchGroup glowna_scena) {
 
-        // Set up the directional lights
-        Color3f light1Color = new Color3f(1.0f, 1.0f, 1.0f);
-        Vector3f light1Direction = new Vector3f(1.0f, 1.0f, 1.0f);
-        Color3f light2Color = new Color3f(1.0f, 1.0f, 1.0f);
-        Vector3f light2Direction = new Vector3f(-1.0f, -1.0f, -1.0f);
+        Scene podloga_wczytanie = wczytajPlikRamienia("resources/podloga.obj");
 
-        DirectionalLight light1 = new DirectionalLight(light1Color, light1Direction);
-        light1.setInfluencingBounds(bounds);
-        tworzona_scena.addChild(light1);
+        tg_podloga.setTransform(t3d_podloga);
+        tg_podloga.addChild(podloga_wczytanie.getSceneGroup());
+        glowna_scena.addChild(tg_podloga);
 
-        DirectionalLight light2 = new DirectionalLight(light2Color, light2Direction);
-        light2.setInfluencingBounds(bounds);
-        tworzona_scena.addChild(light2);
-    }
+        /////////////////////////////////////////////////////////////////////
 
-    public void dodanieZiemi(BranchGroup tworzona_scena){
-        t_podloga = new TransformGroup();
-        t3d_podloga = new Transform3D();
+        Scene podstawka = wczytajPlikRamienia("resources/podstawka.obj");
 
-        ObjectFile loader = new ObjectFile();
-        Scene podloga_wczytanie = null;
-        File file = new java.io.File("resources/podloga.obj");
-        try {
-            podloga_wczytanie = loader.load(file.toURI().toURL());
-        } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-        }
+        tg_podstawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_podstawka.setTransform(t3d_podstawka);
+        tg_podstawka.addChild(podstawka.getSceneGroup());
+        glowna_scena.addChild(tg_podstawka);
 
-        t_podloga.setTransform(t3d_podloga);
-        t_podloga.addChild(podloga_wczytanie.getSceneGroup());
-        tworzona_scena.addChild(t_podloga);
+        /////////////////////////////////////////////////////////////////////
 
-        /////////////////////////////////////////////////////////////////
+        Scene pierwszy_obrot = wczytajPlikRamienia("resources/pierwszy_obraczacz.obj");
 
-        t_podstawka = new TransformGroup();
-        t_podstawka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_pierwszy_obraczacz.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+        tg_pierwszy_obraczacz.addChild(pierwszy_obrot.getSceneGroup());
+        tg_podstawka.addChild(tg_pierwszy_obraczacz);
 
-        Scene podstawka = null;
+        /////////////////////////////////////////////////////////////////////
 
-        File file_1 = new java.io.File("resources/podstawka.obj");
-        try {
-            podstawka = loader.load(file_1.toURI().toURL());
-        } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-        }
+        Scene s_pierwsze_ramie = wczytajPlikRamienia("resources/pierwsze_ramie.obj");
 
-        t_podstawka.setTransform(t3d_podloga);
-        t_podstawka.addChild(podstawka.getSceneGroup());
-        tworzona_scena.addChild(t_podstawka);
+        tg_pierwsze_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+        tg_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
+        tg_pierwszy_obraczacz.addChild(tg_pierwsze_ramie);
 
-        ///////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////
 
-        TransformGroup t_pierwszy_obraczacz = new TransformGroup();
+        Scene s_drugie_ramie = wczytajPlikRamienia("resources/drugie_ramie.obj");
 
-        Scene pierwszy_obrot = null;
-
-        File file_2 = new java.io.File("resources/pierwszy_obraczacz.obj");
-        try {
-            pierwszy_obrot = loader.load(file_2.toURI().toURL());
-        } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-        }
-
-        t_pierwszy_obraczacz.setTransform(t3d_podloga);
-        t_pierwszy_obraczacz.addChild(pierwszy_obrot.getSceneGroup());
-        t_podstawka.addChild(t_pierwszy_obraczacz);
-
-        //////////////////////////////////////////////////////////////////////
-
-        TransformGroup t_pierwsze_ramie = new TransformGroup();
-
-        Scene s_pierwsze_ramie = null;
-
-        File file_3 = new java.io.File("resources/pierwsze_ramie.obj");
-        try {
-            s_pierwsze_ramie = loader.load(file_3.toURI().toURL());
-        } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-        }
-
-        t_pierwsze_ramie.setTransform(t3d_podloga);
-        t_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
-        tworzona_scena.addChild(t_pierwsze_ramie);
-
-        ////////////////////////////////////////////////////////////////////////
-
-        TransformGroup t_drugie_ramie = new TransformGroup();
-
-
-        Scene s_drugie_ramie = null;
-
-        File file_4 = new java.io.File("resources/drugie_ramie.obj");
-        try {
-            s_drugie_ramie = loader.load(file_4.toURI().toURL());
-        } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-        }
-
-        t_drugie_ramie.setTransform(t3d_podloga);
-        t_drugie_ramie.addChild(s_drugie_ramie.getSceneGroup());
-        tworzona_scena.addChild(t_drugie_ramie);
+        tg_drugie_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+        tg_drugie_ramie.addChild(s_drugie_ramie.getSceneGroup());
+        tg_pierwsze_ramie.addChild(tg_drugie_ramie);
     }
 
     /** Creates Vieving platform with orbit behaviour **/
@@ -225,7 +134,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         orbit.setSchedulingBounds(bounds);
         orbit.setTranslateEnable(false);
 
-        orbit.setRotFactors(0.5, 0.5);
+        orbit.setRotFactors(0.5, 0.2);
         orbit.setReverseRotate(true);
 
         viewingPlatform.setViewPlatformBehavior(orbit);
@@ -271,6 +180,77 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         return panel_menu;
     }
 
+    /** Obsluga zdarzen **/
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == reset_kamery) {
+            Transform3D przesuniecie_obserwatora = new Transform3D();
+            przesuniecie_obserwatora.set(new Vector3f(0.0f, 0.0f, 10.0f));
+
+            simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
+        }
+    }
+
+    public void keyPressed(KeyEvent e) {
+        Transform3D akcja = new Transform3D();
+        switch (e.getKeyCode()) {
+
+            case KeyEvent.VK_A:
+                akcja.rotY(Math.PI / 180);
+                t3d_pierwszy_obraczacz.mul(akcja);
+                tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+                break;
+
+            case KeyEvent.VK_D:
+                akcja.rotY(-Math.PI / 180);
+                t3d_pierwszy_obraczacz.mul(akcja);
+                tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+                break;
+
+            case KeyEvent.VK_W:
+                akcja.rotX(Math.PI / 180);
+                t3d_pierwsze_ramie.mul(akcja);
+                tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+                break;
+
+            case KeyEvent.VK_S:
+                akcja.rotX(-Math.PI / 180);
+                t3d_pierwsze_ramie.mul(akcja);
+                tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+                break;
+
+            case KeyEvent.VK_U:
+                akcja.rotX(Math.PI / 180);
+                t3d_drugie_ramie.mul(akcja);
+                tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+                break;
+
+            case KeyEvent.VK_J:
+                akcja.rotX(-Math.PI / 180);
+                t3d_drugie_ramie.mul(akcja);
+                tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+                break;
+        }
+    }
+
+    public void keyReleased(KeyEvent e) {
+    }
+
+    public void keyTyped(KeyEvent e) {
+    }
+
+    public Scene wczytajPlikRamienia(String filename) {
+        ObjectFile loader = new ObjectFile();
+        Scene s = null;
+        File file = new java.io.File(filename);
+        try {
+            s = loader.load(file.toURI().toURL());
+        } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+        return s;
+    }
+
     /** Creates JPanel with robot instructions **/
     public static JPanel dodanieInstrukcji() {
         JLabel label = new JLabel();
@@ -280,37 +260,25 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         return panel_instrukcji;
     }
 
-    /** Obsluga zdarzen **/
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == reset_kamery) {
-            Transform3D przesuniecie_obserwatora = new Transform3D();
-            przesuniecie_obserwatora.set(new Vector3f(0.0f, 0.1f, 12.0f));
+    public void dodanieSwiatla(BranchGroup glowna_scena) {
+        Color3f ambientColor = new Color3f(0.0f, 0.0f, 0.0f);
+        AmbientLight ambientLightNode = new AmbientLight(ambientColor);
+        ambientLightNode.setInfluencingBounds(bounds);
+        glowna_scena.addChild(ambientLightNode);
 
-            simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
-        }
-    }
+        // Set up the directional lights
+        Color3f light1Color = new Color3f(1.0f, 1.0f, 1.0f);
+        Vector3f light1Direction = new Vector3f(1.0f, 1.0f, 1.0f);
+        Color3f light2Color = new Color3f(1.0f, 1.0f, 1.0f);
+        Vector3f light2Direction = new Vector3f(-1.0f, -1.0f, -1.0f);
 
-    public void keyPressed(KeyEvent e){
-        Transform3D akcja = new Transform3D();
-        switch (e.getKeyCode()){
-            case KeyEvent.VK_A:
-                akcja.rotY(Math.PI/100);
-                t3d_podloga.mul(akcja);
-                t_podstawka.setTransform(t3d_podloga);
-                break;
-            case KeyEvent.VK_RIGHT:
-                System.out.println("w prawo");
-                break;
-            case 'a':
-                System.out.println("a");
-                break;
-        }
-    }
+        DirectionalLight light1 = new DirectionalLight(light1Color, light1Direction);
+        light1.setInfluencingBounds(bounds);
+        glowna_scena.addChild(light1);
 
-    public void keyReleased(KeyEvent e) {
-    }
-
-    public void keyTyped(KeyEvent e) {
+        DirectionalLight light2 = new DirectionalLight(light2Color, light2Direction);
+        light2.setInfluencingBounds(bounds);
+        glowna_scena.addChild(light2);
     }
 
     public static void main(String[] args) {
