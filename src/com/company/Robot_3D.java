@@ -37,12 +37,19 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     TransformGroup tg_pierwszy_obraczacz = new TransformGroup();
     TransformGroup tg_pierwsze_ramie = new TransformGroup();
     TransformGroup tg_drugie_ramie = new TransformGroup();
+    TransformGroup tg_pochylacz_chwytaka = new TransformGroup();
+    TransformGroup tg_obraczacz_chwytaka = new TransformGroup();
+    TransformGroup tg_chwytak = new TransformGroup();
+
 
     Transform3D t3d_podloga = new Transform3D();
     Transform3D t3d_podstawka = new Transform3D();
     Transform3D t3d_pierwszy_obraczacz = new Transform3D();
     Transform3D t3d_pierwsze_ramie = new Transform3D();
     Transform3D t3d_drugie_ramie = new Transform3D();
+    Transform3D t3d_pochylacz_chwytaka = new Transform3D();
+    Transform3D t3d_obracacz_chwytaka = new Transform3D();
+    Transform3D t3d_chwytak = new Transform3D();
 
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
@@ -108,21 +115,72 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         /////////////////////////////////////////////////////////////////////
 
-        Scene s_pierwsze_ramie = wczytajPlikRamienia("resources/pierwsze_ramie.obj");
+        Scene s_pierwsze_ramie = wczytajPlikRamienia("resources/pierwsze_ramiev2.obj");
+
 
         tg_pierwsze_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
         tg_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
+
+        Transform3D t3d_przesuniecie = new Transform3D();
+        t3d_przesuniecie.set(new Vector3f(0, 0.62f, -0.13f));   //przesuwam obiekt z orgin na miejsce
+        t3d_pierwsze_ramie.mul(t3d_przesuniecie);
+
+        tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+
         tg_pierwszy_obraczacz.addChild(tg_pierwsze_ramie);
 
         /////////////////////////////////////////////////////////////////////
 
-        Scene s_drugie_ramie = wczytajPlikRamienia("resources/drugie_ramie.obj");
+        Scene s_drugie_ramie = wczytajPlikRamienia("resources/drugie_ramiev2.obj");
 
         tg_drugie_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        tg_drugie_ramie.setTransform(t3d_drugie_ramie);
         tg_drugie_ramie.addChild(s_drugie_ramie.getSceneGroup());
+
+        t3d_przesuniecie.set(new Vector3f(0.04f,0.75f,-0.02f)); //przesuwam obiekt z orgin na miejsce
+        t3d_drugie_ramie.mul(t3d_przesuniecie);
+
+        tg_drugie_ramie.setTransform(t3d_drugie_ramie);
         tg_pierwsze_ramie.addChild(tg_drugie_ramie);
+
+        /////////////////////////////////////////////////////////////////////
+
+        Scene s_pochylacz_chwytaka = wczytajPlikRamienia("resources/pochylacz_chwytakav2.obj");
+
+        tg_pochylacz_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_pochylacz_chwytaka.addChild(s_pochylacz_chwytaka.getSceneGroup());
+
+        t3d_przesuniecie.set(new Vector3f(-0.05f,0.00f,-0.75f)); //przesuwam obiekt z orgin na miejsce
+        t3d_pochylacz_chwytaka.mul(t3d_przesuniecie);
+
+        tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+        tg_drugie_ramie.addChild(tg_pochylacz_chwytaka);
+
+        /////////////////////////////////////////////////////////////////////
+
+        Scene s_obracacz_chwytaka = wczytajPlikRamienia("resources/obraczacz_chwytakav2.obj");
+
+        tg_obraczacz_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_obraczacz_chwytaka.addChild(s_obracacz_chwytaka.getSceneGroup());
+
+        t3d_przesuniecie.set(new Vector3f(0.1f,-0.01f,-0.2f)); //przesuwam obiekt z orgin na miejsce
+        t3d_obracacz_chwytaka.mul(t3d_przesuniecie);
+
+        tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+        tg_pochylacz_chwytaka.addChild(tg_obraczacz_chwytaka);
+
+        /////////////////////////////////////////////////////////////////////
+
+        Scene s_chwytak = wczytajPlikRamienia("resources/chwytakv2.obj");
+
+        tg_chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_chwytak.addChild(s_chwytak.getSceneGroup());
+
+        t3d_przesuniecie.set(new Vector3f(0.0f,0.00f,-0.18f)); //przesuwam obiekt z orgin na miejsce
+        t3d_chwytak.mul(t3d_przesuniecie);
+
+        tg_chwytak.setTransform(t3d_chwytak);
+        tg_obraczacz_chwytaka.addChild(tg_chwytak);
+
     }
 
     /** Creates Vieving platform with orbit behaviour **/
@@ -218,17 +276,52 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
                 break;
 
-            case KeyEvent.VK_U:
+            case KeyEvent.VK_R:
                 akcja.rotX(Math.PI / 180);
                 t3d_drugie_ramie.mul(akcja);
                 tg_drugie_ramie.setTransform(t3d_drugie_ramie);
                 break;
 
-            case KeyEvent.VK_J:
+            case KeyEvent.VK_F:
                 akcja.rotX(-Math.PI / 180);
                 t3d_drugie_ramie.mul(akcja);
                 tg_drugie_ramie.setTransform(t3d_drugie_ramie);
                 break;
+
+            case KeyEvent.VK_1:
+                akcja.rotX(Math.PI / 180);
+                t3d_pochylacz_chwytaka.mul(akcja);
+                tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+                break;
+
+            case KeyEvent.VK_2:
+                akcja.rotX(-Math.PI / 180);
+                t3d_pochylacz_chwytaka.mul(akcja);
+                tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+                break;
+            case KeyEvent.VK_3:
+                akcja.rotY(Math.PI / 180);
+                t3d_obracacz_chwytaka.mul(akcja);
+                tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+                break;
+
+            case KeyEvent.VK_4:
+                akcja.rotY(-Math.PI / 180);
+                t3d_obracacz_chwytaka.mul(akcja);
+                tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+                break;
+            case KeyEvent.VK_5:
+                akcja.rotZ(Math.PI / 180);
+                t3d_chwytak.mul(akcja);
+                tg_chwytak.setTransform(t3d_chwytak);
+                break;
+
+            case KeyEvent.VK_6:
+                akcja.rotZ(-Math.PI / 180);
+                t3d_chwytak.mul(akcja);
+                tg_chwytak.setTransform(t3d_chwytak);
+                break;
+
         }
     }
 
