@@ -41,7 +41,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     TransformGroup tg_obraczacz_chwytaka = new TransformGroup();
     TransformGroup tg_chwytak = new TransformGroup();
 
-
     Transform3D t3d_podloga = new Transform3D();
     Transform3D t3d_podstawka = new Transform3D();
     Transform3D t3d_pierwszy_obraczacz = new Transform3D();
@@ -50,6 +49,19 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     Transform3D t3d_pochylacz_chwytaka = new Transform3D();
     Transform3D t3d_obracacz_chwytaka = new Transform3D();
     Transform3D t3d_chwytak = new Transform3D();
+
+    boolean key_a;
+    boolean key_d;
+    boolean key_w;
+    boolean key_s;
+    boolean key_r;
+    boolean key_f;
+    boolean key_t;
+    boolean key_g;
+    boolean key_y;
+    boolean key_h;
+    boolean key_u;
+    boolean key_j;
 
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
@@ -117,12 +129,11 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         Scene s_pierwsze_ramie = wczytajPlikRamienia("resources/pierwsze_ramiev2.obj");
 
-
         tg_pierwsze_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
 
         Transform3D t3d_przesuniecie = new Transform3D();
-        t3d_przesuniecie.set(new Vector3f(0, 0.62f, -0.13f));   //przesuwam obiekt z orgin na miejsce
+        t3d_przesuniecie.set(new Vector3f(0, 0.62f, -0.13f)); // przesuwam obiekt z orgin na miejsce
         t3d_pierwsze_ramie.mul(t3d_przesuniecie);
 
         tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
@@ -136,7 +147,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tg_drugie_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_drugie_ramie.addChild(s_drugie_ramie.getSceneGroup());
 
-        t3d_przesuniecie.set(new Vector3f(0.04f,0.75f,-0.02f)); //przesuwam obiekt z orgin na miejsce
+        t3d_przesuniecie.set(new Vector3f(0.04f, 0.75f, -0.02f)); // przesuwam obiekt z orgin na miejsce
         t3d_drugie_ramie.mul(t3d_przesuniecie);
 
         tg_drugie_ramie.setTransform(t3d_drugie_ramie);
@@ -149,7 +160,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tg_pochylacz_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_pochylacz_chwytaka.addChild(s_pochylacz_chwytaka.getSceneGroup());
 
-        t3d_przesuniecie.set(new Vector3f(-0.05f,0.00f,-0.75f)); //przesuwam obiekt z orgin na miejsce
+        t3d_przesuniecie.set(new Vector3f(-0.05f, 0.00f, -0.75f)); // przesuwam obiekt z orgin na miejsce
         t3d_pochylacz_chwytaka.mul(t3d_przesuniecie);
 
         tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
@@ -162,7 +173,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tg_obraczacz_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_obraczacz_chwytaka.addChild(s_obracacz_chwytaka.getSceneGroup());
 
-        t3d_przesuniecie.set(new Vector3f(0.1f,-0.01f,-0.2f)); //przesuwam obiekt z orgin na miejsce
+        t3d_przesuniecie.set(new Vector3f(0.1f, -0.01f, -0.2f)); // przesuwam obiekt z orgin na miejsce
         t3d_obracacz_chwytaka.mul(t3d_przesuniecie);
 
         tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
@@ -175,7 +186,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tg_chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_chwytak.addChild(s_chwytak.getSceneGroup());
 
-        t3d_przesuniecie.set(new Vector3f(0.0f,0.00f,-0.18f)); //przesuwam obiekt z orgin na miejsce
+        t3d_przesuniecie.set(new Vector3f(0.0f, 0.00f, -0.18f)); // przesuwam obiekt z orgin na miejsce
         t3d_chwytak.mul(t3d_przesuniecie);
 
         tg_chwytak.setTransform(t3d_chwytak);
@@ -192,7 +203,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         orbit.setSchedulingBounds(bounds);
         orbit.setTranslateEnable(false);
 
-        orbit.setRotFactors(0.5, 0.2);
+        orbit.setRotFactors(0.5, 0.);
         orbit.setReverseRotate(true);
 
         viewingPlatform.setViewPlatformBehavior(orbit);
@@ -238,94 +249,168 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         return panel_menu;
     }
 
-    /** Obsluga zdarzen **/
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == reset_kamery) {
             Transform3D przesuniecie_obserwatora = new Transform3D();
-            przesuniecie_obserwatora.set(new Vector3f(0.0f, 0.0f, 10.0f));
+            przesuniecie_obserwatora.set(new Vector3f(0.0f, 0.0f, 12.0f));
 
             simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
+        } else if (e.getSource() == start) {
+            x += 1;
+            Transform3D przesuniecie_obserwatora = new Transform3D();
+            przesuniecie_obserwatora.set(new Vector3f(0.0f, x, 12.0f));
+            simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
+        } else if (e.getSource() == zacznij_nagrywanie) {
+
+        }
+    }
+
+    public void wykonajRuch() {
+        Transform3D akcja = new Transform3D();
+        if (key_a == true) {
+            akcja.rotY(Math.PI / 180);
+            t3d_pierwszy_obraczacz.mul(akcja);
+            tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+        }
+        if (key_d == true) {
+            akcja.rotY(-Math.PI / 180);
+            t3d_pierwszy_obraczacz.mul(akcja);
+            tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+        }
+        if (key_w == true) {
+            akcja.rotX(Math.PI / 180);
+            t3d_pierwsze_ramie.mul(akcja);
+            tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+        }
+        if (key_s == true) {
+            akcja.rotX(-Math.PI / 180);
+            t3d_pierwsze_ramie.mul(akcja);
+            tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+        }
+        if (key_r == true) {
+            akcja.rotX(Math.PI / 180);
+            t3d_drugie_ramie.mul(akcja);
+            tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+        }
+        if (key_f == true) {
+            akcja.rotX(-Math.PI / 180);
+            t3d_drugie_ramie.mul(akcja);
+            tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+        }
+        if (key_t == true) {
+            akcja.rotX(Math.PI / 180);
+            t3d_pochylacz_chwytaka.mul(akcja);
+            tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+        }
+        if (key_g == true) {
+            akcja.rotX(-Math.PI / 180);
+            t3d_pochylacz_chwytaka.mul(akcja);
+            tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+        }
+        if (key_y == true) {
+            akcja.rotY(Math.PI / 180);
+            t3d_obracacz_chwytaka.mul(akcja);
+            tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+        }
+        if (key_h == true) {
+            akcja.rotY(-Math.PI / 180);
+            t3d_obracacz_chwytaka.mul(akcja);
+            tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+        }
+        if (key_u == true) {
+            akcja.rotZ(Math.PI / 180);
+            t3d_chwytak.mul(akcja);
+            tg_chwytak.setTransform(t3d_chwytak);
+        }
+        if (key_j == true) {
+            akcja.rotZ(-Math.PI / 180);
+            t3d_chwytak.mul(akcja);
+            tg_chwytak.setTransform(t3d_chwytak);
         }
     }
 
     public void keyPressed(KeyEvent e) {
-        Transform3D akcja = new Transform3D();
         switch (e.getKeyCode()) {
-
             case KeyEvent.VK_A:
-                akcja.rotY(Math.PI / 180);
-                t3d_pierwszy_obraczacz.mul(akcja);
-                tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+                key_a = true;
                 break;
-
             case KeyEvent.VK_D:
-                akcja.rotY(-Math.PI / 180);
-                t3d_pierwszy_obraczacz.mul(akcja);
-                tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+                key_d = true;
                 break;
-
             case KeyEvent.VK_W:
-                akcja.rotX(Math.PI / 180);
-                t3d_pierwsze_ramie.mul(akcja);
-                tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+                key_w = true;
                 break;
-
             case KeyEvent.VK_S:
-                akcja.rotX(-Math.PI / 180);
-                t3d_pierwsze_ramie.mul(akcja);
-                tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+                key_s = true;
                 break;
-
             case KeyEvent.VK_R:
-                akcja.rotX(Math.PI / 180);
-                t3d_drugie_ramie.mul(akcja);
-                tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+                key_r = true;
                 break;
-
             case KeyEvent.VK_F:
-                akcja.rotX(-Math.PI / 180);
-                t3d_drugie_ramie.mul(akcja);
-                tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+                key_f = true;
                 break;
-
-            case KeyEvent.VK_1:
-                akcja.rotX(Math.PI / 180);
-                t3d_pochylacz_chwytaka.mul(akcja);
-                tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+            case KeyEvent.VK_T:
+                key_t = true;
                 break;
-
-            case KeyEvent.VK_2:
-                akcja.rotX(-Math.PI / 180);
-                t3d_pochylacz_chwytaka.mul(akcja);
-                tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka);
+            case KeyEvent.VK_G:
+                key_g = true;
                 break;
-            case KeyEvent.VK_3:
-                akcja.rotY(Math.PI / 180);
-                t3d_obracacz_chwytaka.mul(akcja);
-                tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+            case KeyEvent.VK_Y:
+                key_y = true;
                 break;
-
-            case KeyEvent.VK_4:
-                akcja.rotY(-Math.PI / 180);
-                t3d_obracacz_chwytaka.mul(akcja);
-                tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka);
+            case KeyEvent.VK_H:
+                key_h = true;
                 break;
-            case KeyEvent.VK_5:
-                akcja.rotZ(Math.PI / 180);
-                t3d_chwytak.mul(akcja);
-                tg_chwytak.setTransform(t3d_chwytak);
+            case KeyEvent.VK_U:
+                key_u = true;
                 break;
-
-            case KeyEvent.VK_6:
-                akcja.rotZ(-Math.PI / 180);
-                t3d_chwytak.mul(akcja);
-                tg_chwytak.setTransform(t3d_chwytak);
+            case KeyEvent.VK_J:
+                key_j = true;
                 break;
-
         }
+        wykonajRuch();
+
     }
 
     public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_A:
+                key_a = false;
+                break;
+            case KeyEvent.VK_D:
+                key_d = false;
+                break;
+            case KeyEvent.VK_W:
+                key_w = false;
+                break;
+            case KeyEvent.VK_S:
+                key_s = false;
+                break;
+            case KeyEvent.VK_R:
+                key_r = false;
+                break;
+            case KeyEvent.VK_F:
+                key_f = false;
+                break;
+            case KeyEvent.VK_T:
+                key_t = false;
+                break;
+            case KeyEvent.VK_G:
+                key_g = false;
+                break;
+            case KeyEvent.VK_Y:
+                key_y = false;
+                break;
+            case KeyEvent.VK_H:
+                key_h = false;
+                break;
+            case KeyEvent.VK_U:
+                key_u = false;
+                break;
+            case KeyEvent.VK_J:
+                key_j = false;
+                break;
+        }
     }
 
     public void keyTyped(KeyEvent e) {
