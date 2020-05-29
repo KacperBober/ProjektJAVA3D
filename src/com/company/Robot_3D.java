@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.universe.SimpleUniverse;
@@ -49,6 +51,18 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     Transform3D t3d_pochylacz_chwytaka = new Transform3D();
     Transform3D t3d_obracacz_chwytaka = new Transform3D();
     Transform3D t3d_chwytak = new Transform3D();
+
+    Transform3D t3d_podloga_nag = new Transform3D();
+    Transform3D t3d_podstawka_nag = new Transform3D();
+    Transform3D t3d_pierwszy_obraczacz_nag = new Transform3D();
+    Transform3D t3d_pierwsze_ramie_nag = new Transform3D();
+    Transform3D t3d_drugie_ramie_nag = new Transform3D();
+    Transform3D t3d_pochylacz_chwytaka_nag = new Transform3D();
+    Transform3D t3d_obracacz_chwytaka_nag = new Transform3D();
+    Transform3D t3d_chwytak_nag = new Transform3D();
+
+    boolean nagrywanie;
+    Vector<KeyEvent> nagrane_przyciski = new Vector<KeyEvent>();
 
     boolean key_a;
     boolean key_d;
@@ -203,7 +217,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         orbit.setSchedulingBounds(bounds);
         orbit.setTranslateEnable(false);
 
-        orbit.setRotFactors(0.5, 0.);
+        orbit.setRotFactors(0.5, 0.1);
         orbit.setReverseRotate(true);
 
         viewingPlatform.setViewPlatformBehavior(orbit);
@@ -232,7 +246,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         reset_kamery.addActionListener(this);
 
         zacznij_nagrywanie.setText("Rozpocznij nagrywanie");
-        zakoncz_nagrywanie.addActionListener(this);
+        zacznij_nagrywanie.addActionListener(this);
 
         zakoncz_nagrywanie.setText("Zakoncz nagrywanie");
         zakoncz_nagrywanie.addActionListener(this);
@@ -250,18 +264,58 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+
         if (e.getSource() == reset_kamery) {
             Transform3D przesuniecie_obserwatora = new Transform3D();
             przesuniecie_obserwatora.set(new Vector3f(0.0f, 0.0f, 12.0f));
 
             simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
-        } else if (e.getSource() == start) {
-            x += 1;
-            Transform3D przesuniecie_obserwatora = new Transform3D();
-            przesuniecie_obserwatora.set(new Vector3f(0.0f, x, 12.0f));
-            simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
-        } else if (e.getSource() == zacznij_nagrywanie) {
+        }
 
+        if (e.getSource() == zacznij_nagrywanie) {
+            
+            nagrane_przyciski.clear();
+            
+            t3d_pierwszy_obraczacz_nag.set(t3d_pierwszy_obraczacz);
+            t3d_pierwsze_ramie_nag.set(t3d_pierwsze_ramie);
+            t3d_drugie_ramie_nag.set(t3d_drugie_ramie);
+            t3d_pochylacz_chwytaka_nag.set(t3d_pochylacz_chwytaka);
+            t3d_obracacz_chwytaka_nag.set(t3d_obracacz_chwytaka);
+            t3d_chwytak_nag.set(t3d_chwytak);
+
+            nagrywanie = true;
+        }
+
+        if (e.getSource() == zakoncz_nagrywanie) {
+            nagrywanie = false;
+            System.out.println("false");
+        }
+        
+        if (e.getSource() == odtworz_nagranie) {
+
+            t3d_pierwszy_obraczacz.set(t3d_pierwszy_obraczacz_nag);
+            t3d_pierwsze_ramie.set(t3d_pierwsze_ramie_nag);
+            t3d_drugie_ramie.set(t3d_drugie_ramie_nag);
+            t3d_pochylacz_chwytaka.set(t3d_pochylacz_chwytaka_nag);
+            t3d_obracacz_chwytaka.set(t3d_obracacz_chwytaka_nag);
+            t3d_chwytak.set(t3d_chwytak_nag);
+
+            tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz_nag);
+            tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie_nag);
+            tg_drugie_ramie.setTransform(t3d_drugie_ramie_nag);
+            tg_pochylacz_chwytaka.setTransform(t3d_pochylacz_chwytaka_nag);
+            tg_obraczacz_chwytaka.setTransform(t3d_obracacz_chwytaka_nag);
+            tg_chwytak.setTransform(t3d_chwytak_nag);
+
+            for (int i = 0; i < nagrane_przyciski.size(); i++) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+                keyPressed(nagrane_przyciski.elementAt(i));
+                keyReleased(nagrane_przyciski.elementAt(i));
+            }
         }
     }
 
@@ -330,7 +384,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     }
 
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
+        int przycisk = e.getKeyCode();
+        switch (przycisk) {
             case KeyEvent.VK_A:
                 key_a = true;
                 break;
@@ -368,8 +423,10 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 key_j = true;
                 break;
         }
+        if (nagrywanie == true) {
+            nagrane_przyciski.add(e);
+        }
         wykonajRuch();
-
     }
 
     public void keyReleased(KeyEvent e) {
