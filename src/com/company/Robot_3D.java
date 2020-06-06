@@ -145,8 +145,13 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         Scene pierwszy_obrot = wczytajPlikRamienia("resources/pierwszy_obraczacz.obj");
 
         tg_pierwszy_obraczacz.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
         tg_pierwszy_obraczacz.addChild(pierwszy_obrot.getSceneGroup());
+
+        Transform3D t3d_przesuniecie = new Transform3D();
+        t3d_przesuniecie.set(new Vector3f(0, 0.32f, 0.0f)); // przesuwam obiekt z orgin na miejsce
+        t3d_pierwszy_obraczacz.mul(t3d_przesuniecie);
+
+        tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
         tg_podstawka.addChild(tg_pierwszy_obraczacz);
 
         /////////////////////////////////////////////////////////////////////
@@ -156,8 +161,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tg_pierwsze_ramie.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_pierwsze_ramie.addChild(s_pierwsze_ramie.getSceneGroup());
 
-        Transform3D t3d_przesuniecie = new Transform3D();
-        t3d_przesuniecie.set(new Vector3f(0, 0.62f, -0.13f)); // przesuwam obiekt z orgin na miejsce
+        t3d_przesuniecie.set(new Vector3f(0, 0.24f, -0.13f)); // przesuwam obiekt z orgin na miejsce
         t3d_pierwsze_ramie.mul(t3d_przesuniecie);
 
         tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
@@ -335,7 +339,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
-                
+
                 keyPressed(nagrane_przyciski.elementAt(i));
                 keyReleased(nagrane_przyciski.elementAt(i));
             }
