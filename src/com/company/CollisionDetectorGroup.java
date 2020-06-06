@@ -59,8 +59,9 @@ public class CollisionDetectorGroup extends Behavior {
     private WakeupOnCollisionExit wExit;
 
 
-    public CollisionDetectorGroup(Group group_given) {
+    public CollisionDetectorGroup(Group group_given, BoundingSphere boundingSphere) {
             group = group_given;
+            group_given.setCollisionBounds(boundingSphere);
             inCollision = false;
     }
 

@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.Vector;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
+import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import com.sun.j3d.utils.universe.ViewingPlatform;
 
@@ -41,6 +42,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     TransformGroup tg_pochylacz_chwytaka = new TransformGroup();
     TransformGroup tg_obraczacz_chwytaka = new TransformGroup();
     TransformGroup tg_chwytak = new TransformGroup();
+    TransformGroup tg_pudelko = new TransformGroup();
 
     Transform3D t3d_podloga = new Transform3D();
     Transform3D t3d_podstawka = new Transform3D();
@@ -50,6 +52,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     Transform3D t3d_pochylacz_chwytaka = new Transform3D();
     Transform3D t3d_obracacz_chwytaka = new Transform3D();
     Transform3D t3d_chwytak = new Transform3D();
+    TransformGroup t3d_pudelko = new TransformGroup();
 
     Transform3D t3d_podloga_nag = new Transform3D();
     Transform3D t3d_podstawka_nag = new Transform3D();
@@ -130,6 +133,9 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         tg_podloga.setTransform(t3d_podloga);
         tg_podloga.addChild(podloga_wczytanie.getSceneGroup());
         glowna_scena.addChild(tg_podloga);
+        /////////////////////////////////////////////////////////////////////
+
+
 
         /////////////////////////////////////////////////////////////////////
 
@@ -216,9 +222,24 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         t3d_przesuniecie.set(new Vector3f(0.0f, 0.00f, -0.18f)); // przesuwam obiekt z orgin na miejsce
         t3d_chwytak.mul(t3d_przesuniecie);
+        tg_chwytak.setTransform(t3d_przesuniecie);
 
-        tg_chwytak.setTransform(t3d_chwytak);
+        Material kulkowy = new Material();
+        kulkowy.setEmissiveColor(0.80f, 0.1f, 0.26f);
+        kulkowy.setDiffuseColor(0.32f, 0.21f, 0.08f);
+        kulkowy.setSpecularColor(0.45f, 0.32f, 0.21f);
+        kulkowy.setShininess(38f);
+
+        Appearance stylKulka = new Appearance();
+        stylKulka.setMaterial(kulkowy);
+
+        CollisionDetectorGroup kolizja_chwytaka =  new CollisionDetectorGroup(tg_chwytak, new BoundingSphere(new Point3d(0.09f, 1.3f, -1.28f), 0.2f));
+        Sphere kolizja_chwy = new Sphere( 0.2f,stylKulka);
+        kolizja_chwytaka.setSchedulingBounds(new BoundingSphere(new Point3d(), 0.1f));
+        tg_pierwszy_obraczacz.addChild(kolizja_chwytaka);
+
         tg_obraczacz_chwytaka.addChild(tg_chwytak);
+        tg_obraczacz_chwytaka.addChild(kolizja_chwy);
 
     }
 
