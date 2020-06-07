@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Vector;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
@@ -42,7 +43,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     TransformGroup tg_pochylacz_chwytaka = new TransformGroup();
     TransformGroup tg_obraczacz_chwytaka = new TransformGroup();
     TransformGroup tg_chwytak = new TransformGroup();
-    TransformGroup tg_pudelko = new TransformGroup();
+    TransformGroup tg_kolizja_chwytaka = new TransformGroup();
 
     Transform3D t3d_podloga = new Transform3D();
     Transform3D t3d_podstawka = new Transform3D();
@@ -52,7 +53,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     Transform3D t3d_pochylacz_chwytaka = new Transform3D();
     Transform3D t3d_obracacz_chwytaka = new Transform3D();
     Transform3D t3d_chwytak = new Transform3D();
-    TransformGroup t3d_pudelko = new TransformGroup();
 
     Transform3D t3d_podloga_nag = new Transform3D();
     Transform3D t3d_podstawka_nag = new Transform3D();
@@ -107,6 +107,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         // tworzenie sceny
         bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 100.0);
         BranchGroup scena = createSceneGraph(true);
+        scena.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
 
         simpleU = new SimpleUniverse(comp);
 
@@ -218,12 +219,20 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         Scene s_chwytak = wczytajPlikRamienia("resources/chwytakv2.obj");
 
         tg_chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg_chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
         tg_chwytak.addChild(s_chwytak.getSceneGroup());
 
         t3d_przesuniecie.set(new Vector3f(0.0f, 0.00f, -0.18f)); // przesuwam obiekt z orgin na miejsce
         t3d_chwytak.mul(t3d_przesuniecie);
         tg_chwytak.setTransform(t3d_przesuniecie);
+        tg_chwytak.setUserData("Siema");
+        CollisionDetectorGroup kolizja_chwytaka =  new CollisionDetectorGroup(tg_chwytak, new BoundingSphere(new Point3d(0.0f, 0f, -0.23f), 0.04f));          //(0.09f, 1.3f, -1.28f)
+        kolizja_chwytaka.setSchedulingBounds(new BoundingSphere(new Point3d(), 0.2f));
+        glowna_scena.addChild(kolizja_chwytaka);
 
+        tg_obraczacz_chwytaka.addChild(tg_chwytak);
+
+        //////////////////////////////////////////////////////////////////////////
         Material kulkowy = new Material();
         kulkowy.setEmissiveColor(0.80f, 0.1f, 0.26f);
         kulkowy.setDiffuseColor(0.32f, 0.21f, 0.08f);
@@ -233,13 +242,19 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         Appearance stylKulka = new Appearance();
         stylKulka.setMaterial(kulkowy);
 
-        CollisionDetectorGroup kolizja_chwytaka =  new CollisionDetectorGroup(tg_chwytak, new BoundingSphere(new Point3d(0.09f, 1.3f, -1.28f), 0.2f));
-        Sphere kolizja_chwy = new Sphere( 0.2f,stylKulka);
-        kolizja_chwytaka.setSchedulingBounds(new BoundingSphere(new Point3d(), 0.1f));
-        tg_pierwszy_obraczacz.addChild(kolizja_chwytaka);
 
-        tg_obraczacz_chwytaka.addChild(tg_chwytak);
-        tg_obraczacz_chwytaka.addChild(kolizja_chwy);
+
+        Transform3D t3d_kolizja_chwytaka = new Transform3D();
+        tg_kolizja_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+        tg_kolizja_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        t3d_przesuniecie.set(new Vector3f(0.0f, 0.2f, -1.78f)); // przesuwam obiekt z orgin na miejsce
+        t3d_kolizja_chwytaka.mul(t3d_przesuniecie);
+        tg_kolizja_chwytaka.setTransform(t3d_przesuniecie);
+        Sphere kolizja_chwy = new Sphere( 0.2f,stylKulka);
+        tg_kolizja_chwytaka.addChild(kolizja_chwy);
+        tg_kolizja_chwytaka.setUserData("right cube");
+
+        glowna_scena.addChild(tg_kolizja_chwytaka);
 
     }
 
@@ -368,6 +383,46 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             odtwarzanie = false;
         }
     }
+
+    public class CollisionDetectorGroup extends Behavior {
+
+
+        private boolean inCollision = false;
+        private Group group;
+
+        private WakeupOnCollisionEntry wEnter;
+        private WakeupOnCollisionExit wExit;
+
+
+        public CollisionDetectorGroup(Group group_given, Bounds bounds) {
+            group = group_given;
+            group_given.setCollisionBounds(bounds);
+            inCollision = false;
+        }
+
+        public void initialize() {
+            wEnter = new WakeupOnCollisionEntry(group);
+            wExit = new WakeupOnCollisionExit(group);
+            wakeupOn(wEnter);
+        }
+
+        public void processStimulus(Enumeration criteria) {
+            inCollision = !inCollision;
+            WakeupCriterion theCriterion = (WakeupCriterion) criteria.nextElement();
+
+            if (inCollision) {
+
+                System.out.println("Collided with " + wEnter.getTriggeringPath().getObject().getUserData());
+                wakeupOn(wExit);
+            }
+            else {
+                System.out.println("nie ma kolizji");
+                wakeupOn(wEnter);
+            }
+        }
+
+    }
+
 
     public void wykonajRuch() {
 
