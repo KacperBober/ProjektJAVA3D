@@ -43,7 +43,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     TransformGroup tg_pochylacz_chwytaka = new TransformGroup();
     TransformGroup tg_obraczacz_chwytaka = new TransformGroup();
     TransformGroup tg_chwytak = new TransformGroup();
-    TransformGroup tg_kolizja_chwytaka = new TransformGroup();
+    TransformGroup tg_kulka = new TransformGroup();
 
     Transform3D t3d_podloga = new Transform3D();
     Transform3D t3d_podstawka = new Transform3D();
@@ -130,10 +130,16 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     public void dodanieZiemi(BranchGroup glowna_scena) {
 
         Scene podloga_wczytanie = wczytajPlikRamienia("resources/podloga.obj");
+        podloga_wczytanie.getSceneGroup().setUserData("podloga");
 
         tg_podloga.setTransform(t3d_podloga);
         tg_podloga.addChild(podloga_wczytanie.getSceneGroup());
         glowna_scena.addChild(tg_podloga);
+        tg_podloga.setUserData("podloga");
+
+        CollisionDetectorGroup kolizja_podlogi =  new CollisionDetectorGroup(tg_podloga, new BoundingBox(new Point3d(-10.0f, -0.01f, -10.23f), new Point3d(10.0f, 0f, 10.23f)));          //(0.09f, 1.3f, -1.28f)
+        kolizja_podlogi.setSchedulingBounds(new BoundingSphere(new Point3d(), 20f));
+        glowna_scena.addChild(kolizja_podlogi);
         /////////////////////////////////////////////////////////////////////
 
 
@@ -220,12 +226,13 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         tg_chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         tg_chwytak.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+
         tg_chwytak.addChild(s_chwytak.getSceneGroup());
+        tg_chwytak.setUserData("siema");
 
         t3d_przesuniecie.set(new Vector3f(0.0f, 0.00f, -0.18f)); // przesuwam obiekt z orgin na miejsce
         t3d_chwytak.mul(t3d_przesuniecie);
         tg_chwytak.setTransform(t3d_przesuniecie);
-        tg_chwytak.setUserData("Siema");
         CollisionDetectorGroup kolizja_chwytaka =  new CollisionDetectorGroup(tg_chwytak, new BoundingSphere(new Point3d(0.0f, 0f, -0.23f), 0.04f));          //(0.09f, 1.3f, -1.28f)
         kolizja_chwytaka.setSchedulingBounds(new BoundingSphere(new Point3d(), 0.2f));
         glowna_scena.addChild(kolizja_chwytaka);
@@ -244,17 +251,23 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
 
 
-        Transform3D t3d_kolizja_chwytaka = new Transform3D();
-        tg_kolizja_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        tg_kolizja_chwytaka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        Transform3D t3d_kolizja_kulki = new Transform3D();
+        tg_kulka.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+        tg_kulka.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         t3d_przesuniecie.set(new Vector3f(0.0f, 0.2f, -1.78f)); // przesuwam obiekt z orgin na miejsce
-        t3d_kolizja_chwytaka.mul(t3d_przesuniecie);
-        tg_kolizja_chwytaka.setTransform(t3d_przesuniecie);
-        Sphere kolizja_chwy = new Sphere( 0.2f,stylKulka);
-        tg_kolizja_chwytaka.addChild(kolizja_chwy);
-        tg_kolizja_chwytaka.setUserData("right cube");
+        t3d_kolizja_kulki.mul(t3d_przesuniecie);
+        tg_kulka.setTransform(t3d_przesuniecie);
+        Sphere kulka = new Sphere( 0.2f,stylKulka);
+        tg_kulka.addChild(kulka);
+        tg_kulka.setUserData("kulka");
 
-        glowna_scena.addChild(tg_kolizja_chwytaka);
+        CollisionDetectorGroup kolizja_kulki = new CollisionDetectorGroup(tg_kulka, new BoundingSphere(new Point3d(0.0f, 0f, 0.0f), 0.2f));          //(0.09f, 1.3f, -1.28f)
+        kolizja_kulki.setSchedulingBounds(new BoundingSphere(new Point3d(), 0.2f));
+        tg_kulka.addChild(kolizja_kulki);
+        glowna_scena.addChild(tg_kulka);
+        glowna_scena.removeChild(tg_kulka);
+
+        ////////////////////////////////////////////////////////////////////
 
     }
 
@@ -384,43 +397,71 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    public class CollisionDetectorGroup extends Behavior {
 
+    public class Coll extends Behavior {
+        /** The separate criteria used to wake up this beahvior. */
+        protected WakeupCriterion[] theCriteria;
 
         private boolean inCollision = false;
         private Group group;
+        private Bounds bounds_1;
 
-        private WakeupOnCollisionEntry wEnter;
-        private WakeupOnCollisionExit wExit;
+        /** The OR of the separate criteria. */
+        protected WakeupOr oredCriteria;
 
+        /** The shape that is watched for collision. */
+        protected Shape3D collidingShape;
 
-        public CollisionDetectorGroup(Group group_given, Bounds bounds) {
-            group = group_given;
-            group_given.setCollisionBounds(bounds);
+        /**
+         * @param shape
+         *            Shape3D that is to be watched for collisions.
+         * @param bounds
+         *            Bounds that define the active region for this behaviour
+         */
+        public Coll(Group shape, Bounds bounds) {
+            group = shape;
+            shape.setCollisionBounds(bounds);
             inCollision = false;
         }
 
+
+        /**
+         * This creates an entry, exit and movement collision criteria. These are
+         * then OR'ed together, and the wake up condition set to the result.
+         */
         public void initialize() {
-            wEnter = new WakeupOnCollisionEntry(group);
-            wExit = new WakeupOnCollisionExit(group);
-            wakeupOn(wEnter);
+            theCriteria = new WakeupCriterion[3];
+            theCriteria[0] = new WakeupOnCollisionEntry(collidingShape);
+            theCriteria[1] = new WakeupOnCollisionExit(collidingShape);
+            theCriteria[2] = new WakeupOnCollisionMovement(collidingShape);
+            oredCriteria = new WakeupOr(theCriteria);
+            wakeupOn(oredCriteria);
         }
 
+        /**
+         * Where the work is done in this class. A message is printed out using the
+         * userData of the object collided with. The wake up condition is then set
+         * to the OR'ed criterion again.
+         */
         public void processStimulus(Enumeration criteria) {
-            inCollision = !inCollision;
             WakeupCriterion theCriterion = (WakeupCriterion) criteria.nextElement();
-
-            if (inCollision) {
-
-                System.out.println("Collided with " + wEnter.getTriggeringPath().getObject().getUserData());
-                wakeupOn(wExit);
+            if (theCriterion instanceof WakeupOnCollisionEntry) {
+                Node theLeaf = ((WakeupOnCollisionEntry) theCriterion)
+                        .getTriggeringPath().getObject();
+                System.out.println("Collided with " + theLeaf.getUserData());
+            } else if (theCriterion instanceof WakeupOnCollisionExit) {
+                Node theLeaf = ((WakeupOnCollisionExit) theCriterion)
+                        .getTriggeringPath().getObject();
+                System.out.println("Stopped colliding with  "
+                        + theLeaf.getUserData());
+            } else {
+                Node theLeaf = ((WakeupOnCollisionMovement) theCriterion)
+                        .getTriggeringPath().getObject();
+                System.out.println("Moved whilst colliding with "
+                        + theLeaf.getUserData());
             }
-            else {
-                System.out.println("nie ma kolizji");
-                wakeupOn(wEnter);
-            }
+            wakeupOn(oredCriteria);
         }
-
     }
 
 
@@ -651,6 +692,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         AmbientLight ambientLightNode = new AmbientLight(ambientColor);
         ambientLightNode.setInfluencingBounds(bounds);
         glowna_scena.addChild(ambientLightNode);
+
 
         // Set up the directional lights
         Color3f light1Color = new Color3f(1.0f, 1.0f, 1.0f);
