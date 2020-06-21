@@ -1,5 +1,3 @@
-package com.company;
-
 import javax.media.j3d.*;
 import java.util.Enumeration;
 
@@ -30,14 +28,20 @@ public class CollisionDetectorGroup extends Behavior {
         WakeupCriterion theCriterion = (WakeupCriterion) criteria.nextElement();
 
         if (inCollision) {
-
-            System.out.println("Collided with " + group.getUserData());
+            System.out.println(" Kolizja " + group.getUserData());
             wakeupOn(wExit);
         }
         else {
-            System.out.println("nie ma kolizji");
+            System.out.println("nie ma kolizji "  + group.getUserData());
             wakeupOn(wEnter);
         }
     }
+
+    public boolean czyKolizja(){
+        if(inCollision) return true;
+        else return false;
+    }
+
+
 
 }
