@@ -1,0 +1,9 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007ffa0d016b8e, pid=26272, tid=19852
+#
+# JRE version: OpenJDK Runtime Environment AdoptOpenJDK (14.0.1+7) (build 14.0.1+7)
+# Java VM: OpenJDK 64-Bit Server VM AdoptOpenJDK (14.0.1+7, mixed mode, sharing, tiered, compressed oops, g1 gc, windows-amd64)
+# Problematic frame:
+# C

@@ -1,5 +1,3 @@
-package com.company;
-
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.objectfile.ObjectFile;
 import javax.media.j3d.*;
@@ -466,19 +464,26 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             akcja.rotY(Math.PI / 180);
             t3d_pierwszy_obraczacz.mul(akcja);
             tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
-            if (odtwarzanie == false)
+            if(podniesiona == false && 
+                kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja())){   
+                akcja.rotY(-Math.PI / 180 * 2);
+                t3d_pierwszy_obraczacz.mul(akcja);
+                tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+            }
+            else if (odtwarzanie == false)
                 nagrane_przyciski.add(key_A);
-            // if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
-            //     keyPressed(key_D);
         }
         if (key_d == true) {
             akcja.rotY(-Math.PI / 180);
             t3d_pierwszy_obraczacz.mul(akcja);
             tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
-            if (odtwarzanie == false)
+            if(podniesiona == false && kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja())){   
+                akcja.rotY(Math.PI / 180 * 2);
+                t3d_pierwszy_obraczacz.mul(akcja);
+                tg_pierwszy_obraczacz.setTransform(t3d_pierwszy_obraczacz);
+            }
+            else if (odtwarzanie == false)
                 nagrane_przyciski.add(key_D);
-            // if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
-            //     keyPressed(key_A);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -488,20 +493,28 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             akcja.rotX(Math.PI / 180);
             t3d_pierwsze_ramie.mul(akcja);
             tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
-            if (odtwarzanie == false)
+            if(podniesiona == false && kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja())){
+                kat_pierwsze_ramie -= Math.PI / 180;
+                akcja.rotX(-Math.PI / 180);
+                t3d_pierwsze_ramie.mul(akcja);
+                tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+            } 
+            else if (odtwarzanie == false)
                 nagrane_przyciski.add(key_W);
-            //if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
-                //keyPressed(key_S);
         }
         if (key_s == true && -Math.PI / 2 < kat_pierwsze_ramie) {
             kat_pierwsze_ramie -= Math.PI / 180;
             akcja.rotX(-Math.PI / 180);
             t3d_pierwsze_ramie.mul(akcja);
-            tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
-            if (odtwarzanie == false)
+            tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);           
+            if(podniesiona == false && kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja())){
+                kat_pierwsze_ramie += Math.PI / 180 * 2;
+                akcja.rotX(Math.PI / 180 * 2);
+                t3d_pierwsze_ramie.mul(akcja);
+                tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
+            }
+            else if (odtwarzanie == false)
                 nagrane_przyciski.add(key_S);
-           // if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
-                //keyPressed(key_W);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -511,7 +524,13 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             akcja.rotX(Math.PI / 180);
             t3d_drugie_ramie.mul(akcja);
             tg_drugie_ramie.setTransform(t3d_drugie_ramie);
-            if (odtwarzanie == false)
+            if(podniesiona == false && kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja())){
+                kat_drugie_ramie -= Math.PI / 180 * 2;
+                akcja.rotX(-Math.PI / 180 * 2);
+                t3d_drugie_ramie.mul(akcja);
+                tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+            }
+            else if (odtwarzanie == false)
                 nagrane_przyciski.add(key_R);
         }
         if (key_f == true && -Math.PI * 2 / 4 < kat_drugie_ramie) {
@@ -519,7 +538,13 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             akcja.rotX(-Math.PI / 180);
             t3d_drugie_ramie.mul(akcja);
             tg_drugie_ramie.setTransform(t3d_drugie_ramie);
-            if (odtwarzanie == false)
+            if(podniesiona == false && kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja())){
+                kat_drugie_ramie += Math.PI / 180 * 2;
+                akcja.rotX(Math.PI / 180 * 2);
+                t3d_drugie_ramie.mul(akcja);
+                tg_drugie_ramie.setTransform(t3d_drugie_ramie);
+            }
+            else if (odtwarzanie == false)
                 nagrane_przyciski.add(key_F);
         }
 
@@ -580,7 +605,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         //sekcja odpowiedzialna za podnoszenie kulki gdy chwytak będzie dotykał kulki oraz naciśnięty przycisk podnoszenia
 
-        if (podniesiona == true && kolizja_kulki.czyKolizja() && kolizja_chwytaka.czyKolizja()) {
+        if (podniesiona == true && schwytany == false) {
             schwytany = true;
             glowna_scena.removeChild(kulkaBranch);
             tg_chwytak.addChild(kulkaBranch);
@@ -592,7 +617,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 nagrane_przyciski.add(key_I);
         }
 
-        if(puszczona == true){
+        if(puszczona == true  && schwytany == true){
             schwytany = false;
             Transform3D t = new Transform3D();
             Transform3D tt = new Transform3D();

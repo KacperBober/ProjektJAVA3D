@@ -1,7 +1,7 @@
-package com.company;
-
 import javax.media.j3d.*;
 import java.util.Enumeration;
+
+
 /** Klasa wykrywania kolizji pozwala ona na wykrywanie kolizji w obiekcie klasy TransformGroup oraz odczytanie
  * obecnego stany tej kolizji **/
 public class CollisionDetectorGroup extends Behavior {
@@ -28,14 +28,13 @@ public class CollisionDetectorGroup extends Behavior {
 
     public void processStimulus(Enumeration criteria) {
         inCollision = !inCollision;
-        WakeupCriterion theCriterion = (WakeupCriterion) criteria.nextElement();
 
         if (inCollision) {
-            System.out.println(" Kolizja " + group.getUserData());
+            System.out.println("Kolizja       : " + group.getUserData());
             wakeupOn(wExit);
         }
         else {
-            System.out.println("nie ma kolizji "  + group.getUserData());
+            System.out.println("Nie ma kolizji: "  + group.getUserData());
             wakeupOn(wEnter);
         }
     }
