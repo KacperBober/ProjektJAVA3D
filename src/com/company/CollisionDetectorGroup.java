@@ -1,6 +1,9 @@
+package com.company;
+
 import javax.media.j3d.*;
 import java.util.Enumeration;
-
+/** Klasa wykrywania kolizji pozwala ona na wykrywanie kolizji w obiekcie klasy TransformGroup oraz odczytanie
+ * obecnego stany tej kolizji **/
 public class CollisionDetectorGroup extends Behavior {
 
 

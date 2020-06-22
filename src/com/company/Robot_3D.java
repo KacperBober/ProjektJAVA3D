@@ -1,3 +1,5 @@
+package com.company;
+
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.objectfile.ObjectFile;
 import javax.media.j3d.*;
@@ -21,7 +23,7 @@ import javax.media.j3d.Transform3D;
 import javax.vecmath.*;
 
 // ActionListener - nasluchiwanie wcisnietych przyciskow
-// KeyListener - nasluchiwanie wcisnietych klawiszy 
+// KeyListener - nasluchiwanie wcisnietych klawiszy
 public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
     BranchGroup glowna_scena = new BranchGroup();
@@ -102,6 +104,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     float kat_pochylacz_chwytaka_nag = 0.0f;
     float kat_obracacz_chwytaka_nag = 0.0f;
 
+    /** Konstruktor klasy robota. Tworzone jest tutaj całe simpleUniverse, dodawane są zachowania kamery,
+     * przyciski oraz rozmieszczenie elemetów w oknie JFrame **/
     Robot_3D() {
         super("Robot_3D Sebastian Krajna Kacper Bober");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -128,7 +132,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
         // utworzenie czasu dla zasymulowania grawitacji dla opadajacej pilki
         grawitacjaTimer = new Timer();
-		grawitacjaTimer.schedule(grawitacjaTimerTask, 0, 1);
+        grawitacjaTimer.schedule(grawitacjaTimerTask, 0, 1);
 
         simpleU = new SimpleUniverse(comp);
 
@@ -148,6 +152,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         return glowna_scena;
     }
 
+    /**Tworzone są tutaj wszystkie obiekty dodawane do sceny, podłączane są do nich kolizje oraz są one ustawiane
+     * w odpowiednich pozycjach **/
     public void stworzenieObiektow() {
 
         Scene podloga_wczytanie = wczytajPlikRamienia("resources/podloga.obj");
@@ -287,7 +293,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 new BoundingSphere(new Point3d(0.0f, 0f, 0.0f), 0.2f)); // (0.09f, 1.3f, -1.28f)
         kolizja_kulki.setSchedulingBounds(new BoundingSphere(new Point3d(), 0.2f));
         tg_kulka.addChild(kolizja_kulki);
-        
+
         kulkaBranch.setCapability(BranchGroup.ALLOW_DETACH);
         kulkaBranch.addChild(tg_kulka);
         glowna_scena.addChild(kulkaBranch);
@@ -339,8 +345,20 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         return panel_menu;
     }
 
+    public static JPanel dodanieInstrukcji() {
+        JLabel label = new JLabel();
+        label.setIcon(new ImageIcon("resources\\istrukcja_robota.jpg"));
+        JPanel panel_instrukcji = new JPanel(new FlowLayout());
+        panel_instrukcji.add(label);
+        return panel_instrukcji;
+    }
+
+
+    /** Centrum wykrywania akcji, oraz nadawania animacji obiektom podczas odczytu odpowiednich przycisków z
+     * klawiatury. Zaimplementowana została również możliwość nagrywania ruchu oraz jego odtwarzania **/
     public void actionPerformed(ActionEvent e) {
 
+        //reset kamery realizowany przez przesunięcie obserwatora na wartość domyślną
         if (e.getSource() == reset_kamery) {
             Transform3D t = new Transform3D();
             Transform3D przesuniecie_obserwatora = new Transform3D();
@@ -350,6 +368,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             simpleU.getViewingPlatform().getViewPlatformTransform().setTransform(przesuniecie_obserwatora);
         }
 
+        // obsługa zdarzenia nagrywania. Jeżeli nagrywamy to usuwamy poprzednie nagranie oraz zapamiętujemy pozycje początkową
         if (e.getSource() == zacznij_nagrywanie) {
 
             nagrane_przyciski.clear();
@@ -375,6 +394,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             nagrywanie = false;
         }
 
+        //gdy odtwarzamy nagranie to wracamy do zapamiętanej pozycji początkowej i realizujemy ruchy zapisane w wektorze
+        //nagranej sekwencji przycisków klawiatury
         if (e.getSource() == odtworz_nagranie) {
             nagrywanie = false;
             odtwarzanie = true;
@@ -419,7 +440,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
 
     public void wykonajRuch() {
 
-        // stworzenie przyciskow i nadanie im odpowiednich wartosci 
+        // stworzenie przyciskow i nadanie im odpowiednich wartosci
         // aby moc dodac je do vectora i odtworzyc nagranie
         Button a = new Button("click");
         KeyEvent key_A = new KeyEvent(a, 1, 20, 1, KeyEvent.VK_A, 'A');
@@ -438,6 +459,9 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         KeyEvent key_K = new KeyEvent(a, 1, 20, 1, KeyEvent.VK_K, 'K');
 
         Transform3D akcja = new Transform3D();
+
+        //sekcja animowania ruchów pod wpływem naciśnięcia odpowiednich przycisków
+        //sprawdzane są również warunki nagrywania oraz odtwarzania
         if (key_a == true) {
             akcja.rotY(Math.PI / 180);
             t3d_pierwszy_obraczacz.mul(akcja);
@@ -466,8 +490,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
             if (odtwarzanie == false)
                 nagrane_przyciski.add(key_W);
-            if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
-                keyPressed(key_S);
+            //if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
+                //keyPressed(key_S);
         }
         if (key_s == true && -Math.PI / 2 < kat_pierwsze_ramie) {
             kat_pierwsze_ramie -= Math.PI / 180;
@@ -476,8 +500,8 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             tg_pierwsze_ramie.setTransform(t3d_pierwsze_ramie);
             if (odtwarzanie == false)
                 nagrane_przyciski.add(key_S);
-            if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
-                keyPressed(key_W);
+           // if(kolizja_chwytaka.czyKolizja() && ( kolizja_podlogi.czyKolizja() || kolizja_kulki.czyKolizja()))
+                //keyPressed(key_W);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -554,23 +578,23 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 nagrane_przyciski.add(key_J);
         }
 
-        //////////////////////////////////////////////////////////////////////////
+        //sekcja odpowiedzialna za podnoszenie kulki gdy chwytak będzie dotykał kulki oraz naciśnięty przycisk podnoszenia
 
-        if (podniesiona == true && kolizja_kulki.czyKolizja() && kolizja_chwytaka.czyKolizja()) { 
+        if (podniesiona == true && kolizja_kulki.czyKolizja() && kolizja_chwytaka.czyKolizja()) {
             schwytany = true;
             glowna_scena.removeChild(kulkaBranch);
             tg_chwytak.addChild(kulkaBranch);
             Transform3D t = new Transform3D();
             t.set(new Vector3f(0.0f, 0.0f, -0.31f)); // przesuwam obiekt z orgin na miejsce
             tg_kulka.setTransform(t);
-            
+
             if (odtwarzanie == false)
                 nagrane_przyciski.add(key_I);
         }
 
         if(puszczona == true){
-            schwytany = false; 
-            Transform3D t = new Transform3D(); 
+            schwytany = false;
+            Transform3D t = new Transform3D();
             Transform3D tt = new Transform3D();
             tg_chwytak.removeChild(kulkaBranch);
             t.mul(t3d_pierwszy_obraczacz);
@@ -589,6 +613,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         }
     }
 
+    /** wykrywania Eventu przyciśnięcia przycisku **/
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_A: // pierwszy_obraczaczz
@@ -626,7 +651,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
                 break;
             case KeyEvent.VK_J:
                 key_j = true;
-                break; 
+                break;
             case KeyEvent.VK_I:
                 podniesiona = true;
                 break;
@@ -637,7 +662,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
         }
         wykonajRuch();
     }
-
+    /** wykrywania Eventu puszczenia przycisku **/
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_A:
@@ -688,6 +713,7 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     public void keyTyped(KeyEvent e) {
     }
 
+    /** wczytanie zewnętrznych plików 3d **/
     public Scene wczytajPlikRamienia(String filename) {
         ObjectFile loader = new ObjectFile();
         Scene s = null;
@@ -699,14 +725,6 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
             System.exit(1);
         }
         return s;
-    }
-
-    public static JPanel dodanieInstrukcji() {
-        JLabel label = new JLabel();
-        label.setIcon(new ImageIcon("resources\\istrukcja_robota.jpg"));
-        JPanel panel_instrukcji = new JPanel(new FlowLayout());
-        panel_instrukcji.add(label);
-        return panel_instrukcji;
     }
 
     public void dodanieSwiatla(BranchGroup glowna_scena) {
@@ -730,17 +748,17 @@ public class Robot_3D extends JFrame implements ActionListener, KeyListener {
     }
 
     TimerTask grawitacjaTimerTask = new TimerTask() {
-		public void run() {
-            
+        public void run() {
+
             // spadanie pileczki po puszczeniu
-			if(schwytany == false && !kolizja_podlogi.czyKolizja()){
+            if(schwytany == false && !kolizja_podlogi.czyKolizja()){
                 Transform3D t = new Transform3D();
                 t.set(new Vector3f(0f, -0.001f, 0.0f));
                 t3d_kulka.mul(t);
                 tg_kulka.setTransform(t3d_kulka);
             }
-		}
-	};
+        }
+    };
 
     public static void main(String[] args) {
         new Robot_3D();
